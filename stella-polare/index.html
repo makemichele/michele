@@ -174,15 +174,6 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
   background:var(--sun);
   pointer-events:none;
 }
-.ghost{
-  position:absolute; left:50%; top:53%;
-  transform:translate(-50%,-50%) translateX(calc((.5 - var(--p,.5)) * 12vw));
-  font-family:var(--serif); font-weight:500; line-height:.8;
-  font-size:clamp(120px, 31vw, 520px);
-  letter-spacing:.02em;
-  color:#fff; opacity:.5;
-  white-space:nowrap; pointer-events:none; user-select:none;
-}
 
 .hero-grid{
   position:relative; z-index:2;
@@ -595,7 +586,6 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
 <section class="hero no-scrub" id="hero" aria-label="Stella Polare, gelateria artigianale">
   <div class="hero-sticky">
     <div class="sun" aria-hidden="true"></div>
-    <div class="ghost" aria-hidden="true">GELATO</div>
 
     <div class="wrap hero-grid">
       <div class="hero-head">
