@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="frames/f001.webp" type="image/webp">
+<link rel="preload" as="image" href="frames/f006.webp" type="image/webp">
 
 <style>
 :root{
@@ -211,9 +211,10 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:contain;
 }
-.reel video{
-  -webkit-mask-image:radial-gradient(closest-side, #000 86%, transparent 100%);
-          mask-image:radial-gradient(closest-side, #000 86%, transparent 100%);
+.reel video, .reel canvas{
+  /* il video parte con le palline oltre il bordo alto: le facciamo emergere dal giallo */
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, rgba(0,0,0,.35) 6%, #000 15%);
+          mask-image:linear-gradient(to bottom, transparent 0, rgba(0,0,0,.35) 6%, #000 15%);
 }
 .reel canvas{ opacity:0; }
 .scrub .reel canvas{ opacity:1; }
@@ -764,12 +765,12 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
   function headerState(){ header.classList.toggle('solid', hero.getBoundingClientRect().bottom < 90); }
 
   /* ---------- scroll-scrubbed frames ---------- */
-  var N = 145, frames = new Array(N), want = 0, drawn = -1, started = false, ticking = false;
+  var N = 145, FIRST = 5, frames = new Array(N), want = FIRST, drawn = -1, started = false, ticking = false;
   function src(i){ return 'frames/f' + ('00' + (i + 1)).slice(-3) + '.webp'; }
 
   function nearestLoaded(i){
     for (var d = 0; d < N; d++){
-      if (i - d >= 0 && frames[i - d]) return i - d;
+      if (i - d >= FIRST && frames[i - d]) return i - d;
       if (i + d < N && frames[i + d]) return i + d;
     }
     return -1;
@@ -793,7 +794,7 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
     var seen = {}, order = [];
     [16, 8, 4, 2, 1].forEach(function(step){
       if (saveData && step < 2) return;
-      for (var i = 0; i < N; i += step) if (!seen[i]){ seen[i] = 1; order.push(i); }
+      for (var i = FIRST; i < N; i += step) if (!seen[i]){ seen[i] = 1; order.push(i); }
       if (!seen[N - 1]){ seen[N - 1] = 1; order.push(N - 1); }
     });
     var active = 0, failed = false;
@@ -809,7 +810,7 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
       };
       im.onerror = function(){
         active--;
-        if (i === 0){ failed = true; } /* formato non supportato: resta il video */
+        if (i === FIRST){ failed = true; } /* formato non supportato: resta il video */
         else next();
       };
       im.src = src(i);
@@ -826,7 +827,7 @@ body.menu-open .header{ background:var(--butter); box-shadow:none; }
     var total = Math.max(1, hero.offsetHeight - vh);
     var p = clamp(-r.top / total);
     var q = clamp(p / 0.9);
-    want = Math.round(q * (N - 1));
+    want = FIRST + Math.round(q * (N - 1 - FIRST));
     hero.style.setProperty('--p', p.toFixed(4));
     if (started) draw();
 
