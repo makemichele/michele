@@ -294,8 +294,8 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
 }
 .stage-w{ position:relative; min-height:0; container-type:size; }
 .film{
-  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:min(128vw, 184cqh); aspect-ratio:736/400;
+  position:absolute; left:50%; top:56%; transform:translate(-50%,-50%);
+  width:min(128vw, 150cqh); aspect-ratio:736/400;
   container-type:inline-size;
 }
 .film video, .film canvas{
@@ -304,16 +304,17 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
           mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 100%);
 }
 .film-title{
-  position:absolute; left:0; right:0; top:3%; z-index:2;
-  display:flex; flex-direction:column; align-items:center; gap:.4cqw;
+  /* telefono: sopra il video, nello spazio scuro, lontano da coltello e metà */
+  position:absolute; left:0; right:0; bottom:100%; z-index:2; padding-bottom:6px;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
   pointer-events:none;
 }
 .film-title .script{
-  font-family:var(--script); font-size:max(44px, 10cqw); line-height:1.05; padding:0 .2em;
+  font-family:var(--script); font-size:clamp(46px, 14vw, 60px); line-height:1.1; padding:0 .25em;
   background:linear-gradient(100deg, #b8893d 0%, #f3dc9e 45%, #c9a152 60%, #a5782f 100%);
   -webkit-background-clip:text; background-clip:text; color:#e9c27d; -webkit-text-fill-color:transparent;
   filter:drop-shadow(0 3px 14px rgba(20,12,8,.55));
-  clip-path:inset(-30% calc((1 - var(--t,1)) * 100%) -30% 0);
+  clip-path:inset(-30% calc((1 - var(--t,1)) * 100%) -30% -10%);
 }
 .film-title .sub{
   font-size:11px; letter-spacing:.34em; text-transform:uppercase; font-weight:500; color:var(--hero-fg);
@@ -353,8 +354,12 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
   .hero--inverno .cta-row .btn-dark{ background:var(--hero-fg); color:var(--hero-bg); border-color:var(--hero-fg); }
   .hero--inverno .cta-row .btn-line{ color:var(--hero-fg); border-color:var(--hero-fg); }
   .hero--inverno .cta-row .btn-line:hover{ background:var(--hero-fg); color:var(--hero-bg); }
-  .film{ width:min(100cqw, 184cqh); }
-  .film-title .sub{ font-size:max(11px, 1.15cqw); }
+  .stage-w{ margin-top:2vh; }
+  .film{ top:50%; width:min(100cqw, 176cqh); }
+  /* desktop: sul muro in alto, sopra le metà del panettone */
+  .film-title{ bottom:auto; top:2%; padding-bottom:0; }
+  .film-title .script{ font-size:8.2cqw; }
+  .film-title .sub{ display:none; }
   .hero--inverno .chapters{ display:flex; gap:6px; }
   .hero--inverno .hero-foot{ gap:24px; }
   .hero--inverno .hero-foot .hint{ order:3; }
