@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="it" data-stagione="estate" data-v="stella">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stella Polare FORGE</title>
+<meta name="description" content="Stella Polare, gelateria artigianale a Pagnacco (UD) dal 2005. D'estate gelato, d'inverno panettoni, gubane, confetture, tè e spezie. Bozza di proposta FORGEfoundries.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icona-apple.png">
+<link rel="icon" type="image/png" href="icona-192.png">
+<meta name="theme-color" content="#f3d56a">
+<meta name="apple-mobile-web-app-title" content="Stella Polare">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script>
+/* Prima del primo disegno: stagione (equinozi veri, ora di Pagnacco non serve: basta l'istante) e apertura scelta. */
+(function () {
+  var d = document.documentElement;
+  d.className += " js";
+  function jd(j) { return (j - 2440587.5) * 864e5; }
+  function equinozio(anno, autunno) { /* Meeus, cap. 27 */
+    var Y = (anno - 2000) / 1000, Y2 = Y * Y, Y3 = Y2 * Y, Y4 = Y3 * Y;
+    return jd(autunno ? 2451810.21715 + 365242.01767 * Y - 0.11575 * Y2 + 0.00337 * Y3 + 0.00078 * Y4
+                      : 2451623.80984 + 365242.37404 * Y + 0.05169 * Y2 - 0.00411 * Y3 - 0.00057 * Y4);
+  }
+  function stagioneAuto(t) { var y = new Date(t).getUTCFullYear(); return t >= equinozio(y, false) && t < equinozio(y, true) ? "estate" : "inverno"; }
+  var ora = Date.now(), s = stagioneAuto(ora), v = "stella", h = location.hash.slice(1);
+  try {
+    var o = JSON.parse(localStorage.getItem("spf-stagione"));
+    if (o && o.fino > ora && (o.s === "estate" || o.s === "inverno")) s = o.s;
+    var a = localStorage.getItem("spf-apertura");
+    if (a === "stella" || a === "banco" || a === "notte") v = a;
+  } catch (e) {}
+  if (h === "estate" || h === "inverno") s = h;
+  if (h === "stella" || h === "banco" || h === "notte") v = h;
+  d.setAttribute("data-stagione", s);
+  d.setAttribute("data-v", v);
+  window.SPF = { equinozio: equinozio, stagioneAuto: stagioneAuto };
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Figtree:wght@400;500;600;700&family=Great+Vibes&display=swap">
+
+<style>
+/* Layout: il nome è una stella. L'apertura si sceglie tra tre (stella, banco, notte); sotto, il banco della gelateria
+   vive di cartellini piantati nelle vaschette. D'estate colori pieni da gusto di gelato, d'inverno caldi da pasticceria.
+   Fondi sempre piatti. */
+:root {
+  color-scheme: light;
+  /* estate */
+  --carta: #fbf5e6;        /* fondo chiaro: panna */
+  --inchiostro: #241812;   /* testo: cioccolato fondente */
+  --fumo: #6d5f52;         /* testo secondario */
+  --riga: #e6dccb;         /* righe sottili su chiaro */
+  --burro: #f3d56a;        /* il giallo della gelateria */
+  --oro: #b48a3c;          /* la firma */
+  --pistacchio: #a9c96a;
+  --fragola: #f19bb0;
+  --nocciola: #d8a46a;
+  --menta: #9fd8c0;
+  --cielo: #a5d0ee;
+  --lampone: #c8325a;
+  --notte: #17233d;        /* il cielo della terza apertura */
+  --scuro: #241812;        /* fasce scure */
+  --chiaro-su-scuro: #fbf5e6;
+  --fumo-scuro: #b9a995;
+  --riga-scura: #43342a;
+  --verde: #2f8f55;        /* aperto */
+  --display: "Bricolage Grotesque", "Arial Narrow", "Helvetica Neue Condensed", Impact, sans-serif;
+  --testo: "Figtree", "Helvetica Neue", Arial, sans-serif;
+  --firma: "Great Vibes", "Snell Roundhand", cursive;
+  --bordo: max(20px, 5vw);
+}
+:root[data-stagione="inverno"] {
+  --carta: #f6ecdc;        /* crema pasticcera */
+  --inchiostro: #2a1810;
+  --fumo: #765f4e;
+  --riga: #e2d2bb;
+  --burro: #e9b25c;        /* caramello */
+  --oro: #c99a45;
+  --pistacchio: #8fa76a;   /* abete chiaro */
+  --fragola: #e2a08c;      /* cipria calda */
+  --nocciola: #c9773f;     /* cannella */
+  --menta: #b9c7a4;        /* salvia */
+  --cielo: #d9b98f;        /* biscotto */
+  --lampone: #8e2a33;      /* bordeaux */
+  --notte: #0f1626;
+  --scuro: #33170f;        /* cacao e vino */
+  --chiaro-su-scuro: #f6ecdc;
+  --fumo-scuro: #c3a993;
+  --riga-scura: #52301f;
+}
+html[data-stagione="estate"] [data-solo="inverno"], html[data-stagione="inverno"] [data-solo="estate"] { display: none !important; }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--carta); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--carta); color: var(--inchiostro); font-family: var(--testo); font-size: 17px; line-height: 1.5; overflow-x: hidden; }
+@supports (overflow: clip) { body { overflow-x: clip; } }
+h1, h2, h3, p, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+img, svg, canvas { display: block; max-width: 100%; }
+a:focus-visible, button:focus-visible, textarea:focus-visible { outline: 3px solid var(--lampone); outline-offset: 3px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.titolone { font-family: var(--display); font-weight: 800; font-stretch: 75%; text-transform: uppercase; line-height: 0.86; letter-spacing: -0.005em; text-wrap: balance; overflow-wrap: anywhere; }
+.sopra { font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+.fascia { padding-block: 96px; padding-inline: var(--bordo); }
+@supports (overflow: clip) { .fascia { overflow-x: clip; } }
+.dentro { max-width: 74rem; margin-inline: auto; display: flex; flex-direction: column; gap: 40px; }
+.sotto { font-size: 20px; max-width: 36rem; }
+.titolo-sezione { font-size: clamp(66px, 17vw, 196px); }
+
+/* ---------- Icone e bottoni ---------- */
+.ic { flex: none; width: 22px; height: 22px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bottone {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 54px; padding: 0 22px; border: 2.5px solid currentColor; border-radius: 0;
+  background: transparent; color: inherit; font: 700 16px/1.1 var(--testo); letter-spacing: 0.01em;
+  text-decoration: none; cursor: pointer; text-align: center;
+  --pallina: var(--burro); --sopra: var(--inchiostro);
+  transition: color 0.25s ease;
+}
+/* Una pallina di gelato sale dal fondo e riempie il bottone */
+.bottone::before {
+  content: ""; position: absolute; z-index: -1; left: 50%; bottom: 0; width: 140%; aspect-ratio: 1; border-radius: 50%;
+  background: var(--pallina); transform: translate(-50%, 100%) scale(0.2); transition: transform 0.45s cubic-bezier(0.3, 1.25, 0.4, 1);
+}
+@media (hover: hover) { .bottone:hover::before { transform: translate(-50%, 30%) scale(1); } .bottone:hover { color: var(--sopra); } }
+.bottone:focus-visible::before { transform: translate(-50%, 30%) scale(1); }
+.bottone:focus-visible { color: var(--sopra); }
+.bottone.pieno { background: var(--inchiostro); border-color: var(--inchiostro); color: var(--carta); }
+.bottone.chiaro { background: var(--carta); border-color: var(--carta); color: var(--inchiostro); --pallina: var(--burro); }
+.bottone.su-giallo { --pallina: var(--inchiostro); --sopra: var(--burro); }
+.bottone .ic { transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.bottone:hover .ic, .bottone:focus-visible .ic { transform: rotate(-14deg) scale(1.15); }
+.bottone:hover .ic-cornetta { animation: squilla 0.5s ease-in-out 2; }
+.bottone:hover .ic-stella { transform: rotate(90deg) scale(1.2); }
+.bottone:hover .ic-spillo { animation: salta 0.5s ease 2; }
+@keyframes squilla { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+@keyframes salta { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-5px); } }
+.azioni { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- Il cambio di stagione ---------- */
+.stagione-btn {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 42px; padding: 0 16px;
+  border: 0; border-radius: 999px; cursor: pointer; font: 700 13px/1 var(--testo); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+  background: #3b1d14; color: #f6ecdc;
+}
+html[data-stagione="inverno"] .stagione-btn { background: #f3d56a; color: #241812; }
+.stagione-btn .ic { width: 18px; height: 18px; transition: transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.stagione-btn:hover .ic { transform: rotate(180deg) scale(1.15); }
+.stagione-fissa {
+  position: fixed; z-index: 41; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(12px + env(safe-area-inset-top, 0px));
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 0.3s ease;
+}
+.stagione-fissa.fuori { transform: translateY(-140%); opacity: 0; pointer-events: none; }
+@media (max-width: 520px) { .stagione-fissa .etic { display: none; } .stagione-fissa { padding: 0 12px; } }
+
+/* ---------- La bozza: scegli l'apertura ---------- */
+.bozza-bar {
+  position: fixed; z-index: 45; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; padding: 5px 5px 5px 14px; background: #111; color: #fff; border-radius: 999px;
+  font: 600 12px/1 var(--testo); letter-spacing: 0.06em; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); max-width: calc(100% - 24px);
+}
+.bozza-bar > span { text-transform: uppercase; opacity: 0.7; margin-right: 4px; white-space: nowrap; }
+.bozza-bar button { border: 0; border-radius: 999px; background: transparent; color: #fff; padding: 9px 12px; cursor: pointer; font: inherit; white-space: nowrap; }
+.bozza-bar button[aria-pressed="true"] { background: #fff; color: #111; }
+.bozza-bar.fuori { transform: translate(-50%, 160%); }
+.bozza-bar { transition: transform 0.4s ease; }
+
+/* =======================================================================
+   APERTURA: palco fermo, tre storie diverse, il video guidato dallo scroll
+   ======================================================================= */
+.apertura { position: relative; height: 520vh; background: var(--hero-bg, var(--burro)); }
+@supports (height: 1svh) { .apertura { height: 520svh; } }
+.palco { position: sticky; top: 0; height: 100vh; overflow: hidden; background: var(--hero-bg, var(--burro)); color: var(--hero-ink, var(--inchiostro)); }
+@supports (height: 1svh) { .palco { height: 100svh; } }
+.apertura.ferma { height: auto; }
+.apertura.ferma .palco { position: relative; }
+.strato { position: absolute; inset: 0; width: 100%; height: 100%; }
+#film { z-index: 3; }
+#cielo { z-index: 1; }
+html:not([data-v="stella"]) .v1, html:not([data-v="banco"]) .v2, html:not([data-v="notte"]) .v3 { display: none !important; }
+
+.intro {
+  position: absolute; z-index: 8; left: var(--bordo); right: var(--bordo); top: calc(22px + env(safe-area-inset-top, 0px));
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; pointer-events: none;
+}
+.intro > * { pointer-events: auto; }
+.intro .sopra { max-width: 22ch; }
+.invito {
+  position: absolute; z-index: 8; left: var(--bordo); bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+}
+.invito::before { content: ""; width: 2.5px; height: 34px; background: currentColor; transform-origin: 50% 0; animation: goccia 1.6s ease-in-out infinite; }
+@keyframes goccia { 0% { transform: scaleY(0); } 55% { transform: scaleY(1); } 100% { transform: scaleY(1) translateY(34px); opacity: 0; } }
+
+/* Indicatore del mestiere: il cono che si riempie (estate), il panettone che si affetta (inverno) */
+.segno { position: absolute; z-index: 8; right: var(--bordo); bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: 46px; color: var(--hero-ink, var(--inchiostro)); }
+.segno svg { width: 46px; height: auto; overflow: visible; }
+.segno .riempi { opacity: 0.18; transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1); transform-box: fill-box; transform-origin: 50% 100%; }
+.segno .riempi.on { opacity: 1; animation: cade 0.45s cubic-bezier(0.3, 1.5, 0.5, 1); }
+@keyframes cade { from { transform: translateY(-10px) scale(0.8); } to { transform: none; } }
+
+.fine {
+  position: absolute; z-index: 9; left: var(--bordo); right: var(--bordo); bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+  display: flex; justify-content: center; opacity: 0; visibility: hidden; transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2), visibility 0s 0.4s;
+}
+.fine.si { opacity: 1; visibility: visible; transform: none; transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.apertura.ferma .fine { opacity: 1; visibility: visible; transform: none; }
+
+/* --- 1 · La stella si apre --- */
+.parole { position: absolute; z-index: 4; inset: 0; pointer-events: none; }
+.parola {
+  position: absolute; left: 50%; top: 50%; font-family: var(--display); font-weight: 800; font-stretch: 75%; text-transform: uppercase;
+  line-height: 0.8; white-space: nowrap; color: var(--hero-ink); will-change: transform;
+}
+#stella-oro { z-index: 5; pointer-events: none; }
+#stella-oro path { fill: var(--oro); }
+html[data-stagione="estate"] #stella-oro path { fill: var(--inchiostro); }
+
+/* --- 2 · Il banco delle vaschette --- */
+.vaschette { position: absolute; z-index: 4; left: 0; right: 0; top: 50%; transform: translateY(-56%); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.lettere { display: flex; align-items: flex-end; justify-content: center; gap: 0.02em; font-family: var(--display); font-weight: 800; font-stretch: 75%; text-transform: uppercase; line-height: 0.8; }
+.lettera { position: relative; display: flex; flex-direction: column; align-items: center; }
+.lettera .vuota { color: transparent; -webkit-text-stroke: 3px var(--hero-ink); }
+.lettera .piena { position: absolute; left: 0; top: 0; color: var(--c); clip-path: inset(calc((1 - var(--f, 0)) * 100%) 0 0 0); -webkit-text-stroke: 3px var(--hero-ink); }
+.lettera small {
+  margin-top: 14px; padding: 4px 7px 5px; background: #fff; color: #241812; border: 2px solid var(--hero-ink);
+  font: 700 clamp(9px, 1.1vw, 13px)/1 var(--testo); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
+  transform: rotate(var(--r, -4deg)) translateY(calc((1 - var(--f, 0)) * 14px)); opacity: calc(0.25 + var(--f, 0) * 0.75);
+}
+.riga-banco { font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+.spatola { position: absolute; z-index: 6; left: 0; top: 50%; width: clamp(90px, 13vw, 160px); pointer-events: none; will-change: transform; }
+.spatola svg { width: 100%; height: auto; overflow: visible; }
+
+/* --- 3 · La notte di Pagnacco --- */
+#notte-svg { z-index: 4; pointer-events: none; }
+.firma-notte {
+  position: absolute; z-index: 5; left: 0; right: 0; text-align: center; font-family: var(--firma); color: var(--oro);
+  font-size: clamp(54px, 11vw, 140px); line-height: 1; pointer-events: none; will-change: transform, opacity;
+}
+
+/* =======================================================================
+   IL RESTO DEL SITO
+   ======================================================================= */
+
+/* Il cartellino del gusto (estate) o l'etichetta regalo (inverno): aperto o chiuso, oscilla con lo scroll */
+.stato {
+  position: fixed; z-index: 40; top: 0; right: max(14px, env(safe-area-inset-right, 0px)); width: 112px;
+  display: flex; flex-direction: column; align-items: center; pointer-events: none;
+  transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15), opacity 0.3s ease;
+}
+.stato.fuori { transform: translateY(-120%); opacity: 0; }
+.perno { transform-origin: 50% 0; will-change: transform; display: flex; flex-direction: column; align-items: center; }
+.stecco { width: 10px; height: 64px; background: #d9b27c; border-radius: 0 0 5px 5px; box-shadow: inset -3px 0 0 #c49a5f; }
+.spago { width: 2px; height: 58px; background: var(--inchiostro); }
+.cartellino {
+  pointer-events: auto; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 112px; margin-top: -6px;
+  padding: 12px 8px 11px; background: #fff; color: #241812; border: 2.5px solid #241812; text-decoration: none; cursor: pointer;
+  box-shadow: 0 10px 18px rgba(36, 24, 18, 0.22);
+}
+html[data-stagione="estate"] .cartellino { border-radius: 4px; }
+html[data-stagione="inverno"] .cartellino { margin-top: 0; clip-path: polygon(16% 0, 84% 0, 100% 16%, 100% 100%, 0 100%, 0 16%); padding-top: 22px; background: #f6ecdc; }
+html[data-stagione="inverno"] .cartellino::before { content: ""; position: absolute; top: 7px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; border: 2px solid #241812; }
+.cartellino b { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 26px; line-height: 0.9; text-transform: uppercase; }
+.stato.aperto .cartellino b { color: var(--verde); }
+.cartellino small { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; line-height: 1.2; text-wrap: balance; }
+.cartellino.gira { animation: giracart 0.8s ease-in-out; }
+@keyframes giracart { 0% { transform: rotateY(0); } 50% { transform: rotateY(180deg); } 100% { transform: rotateY(360deg); } }
+html[data-stagione="estate"] .spago, html[data-stagione="inverno"] .stecco { display: none; }
+
+/* --- Il banco --- */
+.banco { background: var(--carta); }
+.vasche { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr)); gap: 28px 18px; }
+.vasca { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.vasca-fronte { position: relative; height: 170px; background: var(--c); border: 3px solid var(--inchiostro); display: grid; place-items: end start; padding: 12px; overflow: hidden; }
+.vasca-fronte::before { /* l'onda del gelato spatolato, piatta */
+  content: ""; position: absolute; left: -10%; right: -10%; top: -36px; height: 72px; background: var(--carta);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.vasca-fronte .cart {
+  position: absolute; left: 50%; top: 4px; display: flex; flex-direction: column; align-items: center; transform: translateX(-50%) rotate(var(--r, -3deg)); transform-origin: 50% 100%;
+}
+.vasca-fronte .cart span {
+  padding: 8px 12px 9px; background: #fff; color: #241812; border: 2.5px solid #241812;
+  font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 22px; line-height: 0.95; text-transform: uppercase; text-align: center; max-width: 13ch;
+}
+.vasca-fronte .cart i { width: 6px; height: 46px; background: #d9b27c; }
+.vasca-fronte .ic { width: 40px; height: 40px; color: var(--inchiostro); stroke-width: 1.6; }
+.vasca h3 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 34px; line-height: 0.9; text-transform: uppercase; }
+.vasca p { color: var(--fumo); font-size: 16px; }
+.vasca .tipo { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--inchiostro); }
+.nota { margin: 0; padding: 16px 18px; background: var(--inchiostro); color: var(--carta); max-width: 46rem; font-size: 16px; }
+.nota b { color: var(--burro); }
+
+/* --- Il nastro --- */
+.nastro { overflow: hidden; background: var(--scuro); padding-block: 18px; border-block: 3px solid var(--inchiostro); }
+.nastro-dentro { display: flex; width: max-content; animation: nastro 38s linear infinite; }
+.nastro span { display: inline-flex; align-items: center; gap: 0.45em; padding-right: 0.45em; font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(36px, 6vw, 72px); line-height: 1; text-transform: uppercase; white-space: nowrap; color: var(--burro); }
+.nastro span:nth-child(even) { color: transparent; -webkit-text-stroke: 1.5px var(--burro); }
+.nastro span::after { content: "✦"; color: var(--carta); -webkit-text-stroke: 0; font-size: 0.5em; }
+@keyframes nastro { to { transform: translateX(-50%); } }
+
+/* --- Il consigliere --- */
+.consiglio { background: var(--fragola); color: var(--inchiostro); }
+html[data-stagione="inverno"] .consiglio { background: var(--cielo); }
+#consiglio-box { display: flex; flex-direction: column; gap: 20px; }
+.domanda { display: flex; flex-direction: column; gap: 12px; max-width: 44rem; }
+.domanda label { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.domanda textarea { font: 400 18px/1.4 var(--testo); padding: 14px 16px; min-height: 100px; resize: vertical; border: 3px solid var(--inchiostro); border-radius: 0; background: #fff; color: #241812; width: 100%; }
+.spunti { display: flex; flex-wrap: wrap; gap: 8px; }
+.spunto { min-height: 42px; padding: 0 14px; border: 2px solid var(--inchiostro); border-radius: 999px; background: transparent; color: var(--inchiostro); font: 600 15px/1.1 var(--testo); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+.spunto:hover { background: var(--carta); transform: rotate(-2deg); }
+.domanda .bottone { align-self: flex-start; }
+.attenzione { padding: 12px 14px; background: var(--carta); border-left: 6px solid var(--lampone); font-size: 15px; font-weight: 600; max-width: 44rem; }
+.risposta { font-size: 20px; max-width: 44rem; min-height: 1.5em; }
+.proposte { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 14px; }
+.proposta { display: flex; flex-direction: column; gap: 8px; padding: 18px; background: #fff; color: #241812; border: 3px solid var(--inchiostro); border-top: 12px solid var(--c, var(--burro)); }
+.proposta .cat { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6d5f52; }
+.proposta h3 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 32px; line-height: 0.9; text-transform: uppercase; }
+.proposta p { font-size: 15px; color: #6d5f52; }
+.proposta .perche { color: #241812; font-size: 16px; }
+.avviso-ai { font-size: 14px; max-width: 44rem; }
+
+/* --- Il laboratorio: cartellini piantati --- */
+.lab { background: var(--scuro); color: var(--chiaro-su-scuro); }
+.lab .titolo-sezione { color: var(--burro); }
+.piantati { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 16px; }
+.piantato { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; align-items: start; padding: 20px; background: var(--chiaro-su-scuro); color: var(--inchiostro); border-left: 10px solid var(--c, var(--burro)); }
+.piantato .ic { width: 48px; height: 48px; stroke-width: 1.5; }
+.piantato h3 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 30px; line-height: 0.92; text-transform: uppercase; }
+.piantato p { font-size: 16px; color: var(--fumo); margin-top: 6px; }
+.piantato:hover .ic { animation: dondola 0.8s ease-in-out; }
+@keyframes dondola { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-12deg); } 70% { transform: rotate(9deg); } }
+
+/* --- La novità --- */
+.novita { background: var(--pistacchio); color: var(--inchiostro); }
+.novita .vasetto { width: min(240px, 60vw); height: auto; }
+.novita .riga { display: flex; flex-wrap: wrap; gap: 32px 56px; align-items: center; }
+
+/* --- Il voto --- */
+.voto { background: var(--burro); color: var(--inchiostro); }
+.voto .riga { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 40px; }
+.voto .cifra { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(150px, 40vw, 300px); line-height: 0.78; font-variant-numeric: tabular-nums; }
+.voto .testo { display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; max-width: 30rem; }
+.voto .stelle { display: flex; gap: 6px; }
+.voto .stelle .ic { width: 30px; height: 30px; fill: var(--inchiostro); }
+.voto .stelle .mezza { fill: none; }
+.citazione { font-family: var(--display); font-weight: 600; font-stretch: 85%; font-size: clamp(28px, 4vw, 46px); line-height: 1.05; max-width: 30ch; text-wrap: balance; }
+.citazione-chi { font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+
+/* --- La storia (da raccontare) --- */
+.storia { background: var(--carta); }
+.anni { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0 32px; }
+.anni div { padding-block: 18px; border-top: 3px solid var(--inchiostro); display: flex; flex-direction: column; gap: 6px; }
+.anni b { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(54px, 8vw, 88px); line-height: 0.85; }
+.segnaposto { padding: 22px; border: 3px dashed var(--inchiostro); max-width: 46rem; display: flex; flex-direction: column; gap: 8px; }
+.segnaposto b { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 30px; text-transform: uppercase; line-height: 0.95; }
+
+/* --- Contatti --- */
+.contatti { background: var(--scuro); color: var(--chiaro-su-scuro); padding-bottom: 120px; }
+.contatti .titolo-sezione { color: var(--burro); }
+.numero { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(60px, 15vw, 150px); line-height: 0.85; white-space: nowrap; text-decoration: none; color: inherit; font-variant-numeric: tabular-nums; }
+.dove { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: 36px 56px; }
+.dove h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--fumo-scuro); margin-bottom: 12px; }
+.orari { display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; font-variant-numeric: tabular-nums; }
+.orari dt { color: var(--fumo-scuro); }
+.orari .oggi { color: var(--burro); font-weight: 700; }
+.da-confermare { margin-top: 12px; font-size: 13px; color: var(--fumo-scuro); }
+.social { display: grid; }
+.social-link { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2px 12px; padding-block: 10px 12px; border-bottom: 1px solid var(--riga-scura); color: inherit; text-decoration: none; }
+.social-nome { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(40px, 4.8vw, 52px); line-height: 0.9; text-transform: uppercase; }
+.social-link small { grid-column: 1 / -1; font-size: 14px; color: var(--fumo-scuro); }
+.social-link.mancante { opacity: 0.55; }
+.mappa { border: 3px solid var(--riga-scura); padding: clamp(22px, 4vw, 40px); display: grid; gap: 18px; justify-items: start; }
+.spillo { position: relative; width: 40px; height: 40px; border-radius: 50% 50% 50% 0; background: var(--burro); transform: rotate(-45deg); }
+.spillo::after { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: var(--scuro); }
+.mappa-indirizzo { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(38px, 6vw, 64px); line-height: 0.9; text-transform: uppercase; }
+.mappa-nota { font-size: 14px; color: var(--fumo-scuro); max-width: 52ch; }
+.app-telefono { display: flex; gap: 22px; align-items: flex-start; padding: clamp(20px, 3.5vw, 32px); border: 3px solid var(--riga-scura); }
+.app-icona { width: 84px; height: 84px; flex: none; border-radius: 20px; }
+.app-testo { display: grid; gap: 12px; justify-items: start; }
+.app-testo h3 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(34px, 4.6vw, 46px); line-height: 0.92; text-transform: uppercase; }
+.app-testo p { color: var(--fumo-scuro); max-width: 54ch; }
+.app-passi { padding-left: 1.3em; display: grid; gap: 6px; list-style: decimal; }
+@media (max-width: 520px) { .app-telefono { flex-direction: column; } }
+.saluto { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: clamp(64px, 15vw, 170px); line-height: 0.82; text-transform: uppercase; color: var(--burro); }
+.saluto button { all: unset; cursor: pointer; }
+.saluto button:focus-visible { outline: 3px solid var(--burro); outline-offset: 6px; }
+.piede { border-top: 1px solid var(--riga-scura); padding-top: 22px; display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: 14px; color: var(--fumo-scuro); }
+.piede a { color: inherit; text-underline-offset: 3px; }
+.bozza { font-size: 13px; color: var(--fumo-scuro); }
+.contatti .bottone { --pallina: var(--burro); --sopra: var(--inchiostro); }
+.contatti .bottone.chiaro { --pallina: var(--fragola); }
+
+/* Sorprese */
+.cadente { position: fixed; z-index: 95; left: -10vw; top: 8vh; width: 26vw; height: 4px; pointer-events: none; background: var(--burro); border-radius: 4px; transform-origin: 100% 50%; animation: cadente 1.4s cubic-bezier(0.5, 0, 0.4, 1) forwards; }
+.cadente::after { content: ""; position: absolute; right: -14px; top: -12px; width: 28px; height: 28px; background: var(--burro); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
+@keyframes cadente { from { transform: translate(0, 0) rotate(18deg) scaleX(0.3); opacity: 0; } 20% { opacity: 1; } to { transform: translate(130vw, 50vh) rotate(18deg) scaleX(1); opacity: 0; } }
+.pioggia { position: fixed; z-index: 95; top: -60px; width: 30px; height: 30px; pointer-events: none; animation: piove var(--d, 1.8s) cubic-bezier(0.4, 0, 0.8, 0.6) forwards; }
+@keyframes piove { to { transform: translateY(115vh) rotate(var(--g, 200deg)); } }
+
+/* I pannelli entrano muovendosi (dove si può; altrove restano fermi e visibili) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .vasca-fronte .cart { animation: pianta linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+    @keyframes pianta { 0% { transform: translateX(-50%) translateY(-140px) rotate(-18deg); } 70% { transform: translateX(-50%) translateY(6px) rotate(calc(var(--r, -3deg) * -1.6)); } 100% { transform: translateX(-50%) rotate(var(--r, -3deg)); } }
+    .vasca-fronte { animation: riempie linear both; animation-timeline: view(); animation-range: entry 0% cover 26%; }
+    @keyframes riempie { from { clip-path: inset(70% 0 0 0); } to { clip-path: inset(0); } }
+    .piantato { animation: entra linear both; animation-timeline: view(); animation-range: entry 0% cover 24%; }
+    @keyframes entra { from { transform: translateX(-60px) rotate(-3deg); } to { transform: none; } }
+    .titolo-sezione, .voto .cifra { animation: stende linear both; animation-timeline: view(); animation-range: entry 0% cover 32%; transform-origin: 0 100%; }
+    @keyframes stende { from { transform: scaleY(0.4) skewX(-8deg); } to { transform: none; } }
+    .proposta, .mappa, .app-telefono, .segnaposto, .anni div { animation: sale linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
+    @keyframes sale { from { transform: translateY(50px); } to { transform: none; } }
+    .novita .vasetto { animation: gira linear both; animation-timeline: view(); animation-range: entry 0% cover 50%; }
+    @keyframes gira { from { transform: rotate(-24deg) translateY(60px); } to { transform: none; } }
+  }
+}
+
+/* Cursore: una stellina; sulle cose cliccabili un cono (estate) o una fetta di panettone (inverno). Solo su computer. */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5Q13.4 10.6 22.5 12Q13.4 13.4 12 22.5Q10.6 13.4 1.5 12Q10.6 10.6 12 1.5Z' fill='%23f3d56a' stroke='%23241812' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 11 11, auto; }
+  html[data-stagione="estate"] a, html[data-stagione="estate"] button, html[data-stagione="estate"] .cartellino { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='34' viewBox='0 0 30 34'%3E%3Cpath d='M8 15l7 17 7-17z' fill='%23e3a95c' stroke='%23241812' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='15' cy='10' r='8' fill='%23f19bb0' stroke='%23241812' stroke-width='2'/%3E%3C/svg%3E") 15 3, pointer; }
+  html[data-stagione="inverno"] a, html[data-stagione="inverno"] button, html[data-stagione="inverno"] .cartellino { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='30' viewBox='0 0 32 30'%3E%3Cpath d='M4 26L16 3l12 23z' fill='%23f2d79a' stroke='%23241812' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 3l12 23' stroke='%23a8622f' stroke-width='4'/%3E%3Ccircle cx='14' cy='18' r='1.6' fill='%23241812'/%3E%3Ccircle cx='18' cy='22' r='1.6' fill='%23241812'/%3E%3Ccircle cx='11' cy='23' r='1.6' fill='%23241812'/%3E%3C/svg%3E") 16 3, pointer; }
+  textarea { cursor: text; }
+}
+
+/* Il cambio di stagione si apre a cerchio dal bottone */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Disegni riusati -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-stella" viewBox="0 0 24 24"><path class="ic-stella-p" d="M12 2Q13.3 10.7 22 12Q13.3 13.3 12 22Q10.7 13.3 2 12Q10.7 10.7 12 2Z"/></symbol>
+  <symbol id="i-cono" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M7.5 11.5 12 22l4.5-10.5M9.5 14.5l4 4M14.5 14.5l-4 4"/></symbol>
+  <symbol id="i-vaschetta" viewBox="0 0 24 24"><path d="M3 10h18l-2 10H5z"/><path d="M5 10c0-3 2.5-5 5-5 1.2-1.5 3.8-1.5 5 0 2.5 0 4 2 4 5"/></symbol>
+  <symbol id="i-spatola" viewBox="0 0 24 24"><path d="M14 3h6v8a3 3 0 0 1-3 3h0a3 3 0 0 1-3-3z"/><path d="M17 14v7"/></symbol>
+  <symbol id="i-cucchiaino" viewBox="0 0 24 24"><ellipse cx="16" cy="7" rx="4" ry="5" transform="rotate(35 16 7)"/><path d="M13.5 10.5 4 21"/></symbol>
+  <symbol id="i-granita" viewBox="0 0 24 24"><path d="M5 9h14l-1.8 12H6.8z"/><path d="M5 9c1-3 3-4 7-4s6 1 7 4M14 5l3-3"/><path d="M9 13h.01M12 15h.01M15 13h.01M10 18h.01M14 18h.01"/></symbol>
+  <symbol id="i-ghiacciolo" viewBox="0 0 24 24"><path d="M7 4a5 5 0 0 1 10 0v11H7z"/><path d="M12 15v7M7 9h10"/></symbol>
+  <symbol id="i-torta" viewBox="0 0 24 24"><path d="M3 12h18v8H3z"/><path d="M3 12c0-2 2-3 9-3s9 1 9 3M3 16h18"/><path d="M12 9V5M12 5l1.5-2"/></symbol>
+  <symbol id="i-vasetto" viewBox="0 0 24 24"><path d="M7 3h10v3H7z"/><path d="M6 6h12v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 12h6v4H9z"/></symbol>
+  <symbol id="i-foglia" viewBox="0 0 24 24"><path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15z"/><path d="M5 19 13 11"/></symbol>
+  <symbol id="i-panettone" viewBox="0 0 24 24"><path d="M5 11h14v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M4 11c0-5 3.5-8 8-8s8 3 8 8z"/><path d="M5 15h14"/><path d="M10 7h.01M14 8h.01M12 5.5h.01"/></symbol>
+  <symbol id="i-gubana" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12a1.5 1.5 0 1 1 1.5 1.5A3.5 3.5 0 1 1 9 10a5.5 5.5 0 1 1 6.5 7.5"/></symbol>
+  <symbol id="i-te" viewBox="0 0 24 24"><path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6z"/><path d="M17 11h1.5a2.5 2.5 0 0 1 0 5H17M8 2c-1 1.5 1 2.5 0 4M12 2c-1 1.5 1 2.5 0 4"/></symbol>
+  <symbol id="i-spezie" viewBox="0 0 24 24"><path d="M12 3l1.6 5.2L19 7l-3.8 4L19 15l-5.4-1.2L12 19l-1.6-5.2L5 15l3.8-4L5 7l5.4 1.2z"/><circle cx="12" cy="11" r="1.6"/></symbol>
+  <symbol id="i-regalo" viewBox="0 0 24 24"><path d="M4 10h16v11H4zM3 7h18v3H3zM12 7v14"/><path d="M12 7C10 3 6 3.5 7.5 6.5 8.3 7 10.5 7 12 7zM12 7c2-4 6-3.5 4.5-.5-.8.5-3 .5-4.5.5z"/></symbol>
+  <symbol id="i-sole" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></symbol>
+  <symbol id="i-cornetta" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-spillo" viewBox="0 0 24 24"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-freccia" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-campanella" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+</svg>
+
+<a class="sr" href="#banco">Vai al contenuto</a>
+
+<!-- Il cambio di stagione, sempre a portata dopo l'apertura -->
+<button class="stagione-btn stagione-fissa fuori" type="button" data-cambia-stagione>
+  <svg class="ic"><use href="#i-stella"/></svg><span class="etic">Sta arrivando Natale</span>
+</button>
+
+<!-- Aperto/chiuso: cartellino del gusto o etichetta regalo -->
+<div class="stato fuori" id="stato">
+  <div class="perno" id="perno">
+    <span class="stecco" aria-hidden="true"></span>
+    <span class="spago" aria-hidden="true"></span>
+    <a class="cartellino" id="cartellino" href="#contatti" aria-label="Orari"><b id="stato-titolo">Orari</b><small id="stato-dettaglio">Stella Polare</small></a>
+  </div>
+</div>
+
+<!-- ============================ APERTURA ============================ -->
+<header class="apertura" id="apertura">
+  <div class="palco" id="palco">
+    <h1 class="sr">Stella Polare, gelateria artigianale a Pagnacco dal 2005</h1>
+    <canvas class="strato v v3" id="cielo" aria-hidden="true"></canvas>
+    <canvas class="strato" id="film" role="img" aria-label="Il video della gelateria"></canvas>
+
+    <!-- 1 · La stella si apre -->
+    <div class="parole v v1" aria-hidden="true">
+      <span class="parola" id="p-alto">Stella</span>
+      <span class="parola" id="p-basso">Polare</span>
+    </div>
+    <svg class="strato v v1" id="stella-oro" aria-hidden="true"><path id="stella-path"/></svg>
+
+    <!-- 2 · Il banco delle vaschette -->
+    <div class="vaschette v v2" id="vaschette" aria-hidden="true">
+      <div class="lettere" id="lettere"></div>
+      <p class="riga-banco" data-solo="estate">Sei vaschette · un banco · dal 2005</p>
+      <p class="riga-banco" data-solo="inverno">Nove lettere · un laboratorio · dal 2005</p>
+    </div>
+    <div class="spatola v v2" id="spatola" aria-hidden="true">
+      <svg viewBox="0 0 60 200"><path d="M8 4h44a4 4 0 0 1 4 4v66a26 26 0 0 1-26 26h0A26 26 0 0 1 4 74V8a4 4 0 0 1 4-4z" fill="#d7dde2" stroke="#241812" stroke-width="4"/><path d="M24 98h12v94a6 6 0 0 1-12 0z" fill="#241812"/></svg>
+    </div>
+
+    <!-- 3 · La notte di Pagnacco -->
+    <svg class="strato v v3" id="notte-svg" aria-hidden="true"></svg>
+    <p class="firma-notte v v3" id="firma-notte" aria-hidden="true">Stella Polare</p>
+
+    <div class="intro">
+      <span class="sopra" id="intro-sopra"><span data-solo="estate">Gelateria artigianale · Pagnacco</span><span data-solo="inverno">Panettoni e dolci · Pagnacco</span></span>
+      <button class="stagione-btn" type="button" data-cambia-stagione><svg class="ic"><use href="#i-stella"/></svg><span class="etic">Sta arrivando Natale</span></button>
+    </div>
+    <span class="invito" id="invito">Scorri</span>
+    <div class="segno" id="segno" aria-hidden="true"></div>
+    <div class="fine" id="fine">
+      <div class="azioni" data-solo="estate">
+        <a class="bottone pieno" href="#banco"><svg class="ic"><use href="#i-cono"/></svg><span class="etic">Cosa c'è al banco</span></a>
+        <a class="bottone chiaro" href="#contatti"><svg class="ic"><use href="#i-spillo"/></svg><span class="etic">Come arrivare</span></a>
+      </div>
+      <div class="azioni" data-solo="inverno">
+        <a class="bottone pieno" href="#banco"><svg class="ic"><use href="#i-panettone"/></svg><span class="etic">La bottega di Natale</span></a>
+        <a class="bottone chiaro" href="tel:+390432661199"><svg class="ic ic-cornetta"><use href="#i-cornetta"/></svg><span class="etic">Chiama</span></a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============================ IL BANCO ============================ -->
+<section class="fascia banco" id="banco">
+  <div class="dentro">
+    <p class="sopra" data-solo="estate">I sei classici</p>
+    <p class="sopra" data-solo="inverno">La bottega di Natale</p>
+    <h2 class="titolone titolo-sezione" data-solo="estate">Al banco</h2>
+    <h2 class="titolone titolo-sezione" data-solo="inverno">In bottega</h2>
+    <p class="sotto" data-solo="estate">Accanto a questi ci sono i gusti di stagione: chiedete al banco quelli del giorno.</p>
+    <p class="sotto" data-solo="inverno">Panettoni, gubane e piccoli regali fatti in laboratorio. Si trovano in negozio a Pagnacco.</p>
+    <ul class="vasche" id="vasche"></ul>
+    <p class="nota" data-solo="estate">Ogni giorno ci sono anche gusti <b>senza glutine</b> e <b>vegani</b>: chiedete al banco quali sono.</p>
+    <p class="nota" data-solo="inverno">Prezzi, pezzature e disponibilità: <b>chiedete in negozio</b> o allo 0432 661199.</p>
+  </div>
+</section>
+
+<div class="nastro" aria-hidden="true"><div class="nastro-dentro" id="nastro"></div></div>
+
+<!-- ============================ IL CONSIGLIERE ============================ -->
+<section class="fascia consiglio" id="consiglio">
+  <div class="dentro">
+    <p class="sopra">Non sai cosa scegliere?</p>
+    <h2 class="titolone titolo-sezione" data-solo="estate">Che gusto prendo?</h2>
+    <h2 class="titolone titolo-sezione" data-solo="inverno">Cosa porto a Natale?</h2>
+    <p class="sotto" data-solo="estate">Scrivi cosa ti piace o per chi è: ti propongo i gusti giusti dal nostro banco.</p>
+    <p class="sotto" data-solo="inverno">Scrivi per chi è il regalo o cosa piace in famiglia: ti propongo cosa portare dalla bottega.</p>
+    <div id="consiglio-box">
+      <form class="domanda" id="consiglio-modulo">
+        <label for="richiesta">La tua richiesta</label>
+        <textarea id="richiesta" maxlength="600"></textarea>
+        <div class="spunti" id="spunti"></div>
+        <button class="bottone pieno" id="consiglia" type="submit"><svg class="ic"><use href="#i-cucchiaino"/></svg><span class="etic">Consigliami</span></button>
+      </form>
+      <p class="attenzione" id="attenzione" hidden>Per allergie e intolleranze non affidarti a un consiglio automatico: chiedi sempre al banco o allo 0432 661199.</p>
+      <p class="risposta" id="risposta" aria-live="polite"></p>
+      <ul class="proposte" id="proposte"></ul>
+      <p class="avviso-ai">Le proposte sono scritte dall'intelligenza artificiale e possono sbagliare. Per allergie e intolleranze chiedi sempre in gelateria.</p>
+    </div>
+    <p class="sotto" id="consiglio-assente" hidden>Qui il consigliere non è disponibile: sfoglia il banco qui sopra, ogni voce ha la sua descrizione.</p>
+  </div>
+</section>
+
+<!-- ============================ IL LABORATORIO ============================ -->
+<section class="fascia lab" id="laboratorio">
+  <div class="dentro">
+    <p class="sopra">Il laboratorio di via Pazzan</p>
+    <h2 class="titolone titolo-sezione">Fatto qui</h2>
+    <ul class="piantati" id="piantati"></ul>
+  </div>
+</section>
+
+<!-- ============================ LA NOVITÀ ============================ -->
+<section class="fascia novita" id="novita">
+  <div class="dentro">
+    <p class="sopra">Tutto l'anno sul banco</p>
+    <div class="riga">
+      <svg class="vasetto" viewBox="0 0 120 150" aria-hidden="true">
+        <rect x="26" y="8" width="68" height="22" fill="#241812"/>
+        <rect x="16" y="28" width="88" height="112" rx="14" fill="#d8962f" stroke="#241812" stroke-width="5"/>
+        <rect x="28" y="62" width="64" height="44" fill="#fbf5e6" stroke="#241812" stroke-width="4"/>
+        <path d="M60 70Q62 82 74 84Q62 86 60 98Q58 86 46 84Q58 82 60 70Z" fill="#241812"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:36rem">
+        <h2 class="titolone titolo-sezione">Crema Cebuine</h2>
+        <p class="sotto">Miele e nocciola IGP, da spalmare. La fanno in laboratorio e la trovate al banco tutto l'anno.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ IL VOTO ============================ -->
+<section class="fascia voto" id="voto">
+  <div class="dentro">
+    <p class="sopra">Chi è passato da noi</p>
+    <div class="riga">
+      <span class="cifra">4,6</span>
+      <div class="testo">
+        <div class="stelle" aria-label="4,6 su 5">
+          <svg class="ic"><use href="#i-stella"/></svg><svg class="ic"><use href="#i-stella"/></svg><svg class="ic"><use href="#i-stella"/></svg><svg class="ic"><use href="#i-stella"/></svg><svg class="ic mezza"><use href="#i-stella"/></svg>
+        </div>
+        <p>Valutazione media su Tripadvisor, su 5.</p>
+        <a class="bottone su-giallo" href="https://www.tripadvisor.it/Search?q=Stella%20Polare%20Pagnacco" target="_blank" rel="noopener"><svg class="ic"><use href="#i-freccia"/></svg><span class="etic">Leggi le recensioni</span></a>
+      </div>
+    </div>
+    <blockquote class="citazione">«Se desiderate un gelato con ingredienti locali di elevatissima qualità, questa è la gelateria.»</blockquote>
+    <p class="citazione-chi">Claudia, Pagnacco</p>
+  </div>
+</section>
+
+<!-- ============================ LA STORIA ============================ -->
+<section class="fascia storia" id="storia">
+  <div class="dentro">
+    <p class="sopra">La nostra storia</p>
+    <h2 class="titolone titolo-sezione">Dal 2005, alla rotonda</h2>
+    <div class="anni">
+      <div><b>2005</b><span>Maggio: apriamo in via Pazzan 9, vicino alla rotonda di Pagnacco.</span></div>
+      <div><b>20</b><span>Anni di laboratorio, con Marta e Ivan.</span></div>
+      <div><b>46°</b><span>L'altezza della Stella Polare sopra l'orizzonte, vista da Pagnacco.</span></div>
+    </div>
+    <div class="segnaposto">
+      <b>Il resto lo raccontano Marta e Ivan</b>
+      <p>Qui andrà la loro storia: come è nata la gelateria, il nome, le ricette. Spazio pronto, testo da scrivere insieme.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CONTATTI ============================ -->
+<section class="fascia contatti" id="contatti">
+  <div class="dentro">
+    <p class="sopra" style="color:var(--fumo-scuro)">Vieni a trovarci</p>
+    <h2 class="titolone titolo-sezione">Pagnacco</h2>
+    <a class="numero" href="tel:+390432661199">0432 661199</a>
+    <div class="azioni">
+      <a class="bottone" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+Pazzan+9+33010+Pagnacco+UD" target="_blank" rel="noopener"><svg class="ic ic-spillo"><use href="#i-spillo"/></svg><span class="etic">Indicazioni</span></a>
+      <a class="bottone chiaro" href="tel:+390432661199"><svg class="ic ic-cornetta"><use href="#i-cornetta"/></svg><span class="etic">Chiama</span></a>
+      <button class="bottone" type="button" data-cambia-stagione><svg class="ic"><use href="#i-stella"/></svg><span class="etic">Sta arrivando Natale</span></button>
+    </div>
+    <div class="dove">
+      <div>
+        <h3>Orari</h3>
+        <dl class="orari" id="orari"></dl>
+        <p class="da-confermare">Orari indicativi, da confermare con la gelateria: cambiano con la stagione.</p>
+      </div>
+      <div>
+        <h3>Dove</h3>
+        <p>Via Pazzan 9<br>33010 Pagnacco (UD)<br>Vicino alla rotonda</p>
+      </div>
+      <div>
+        <h3>Seguici</h3>
+        <ul class="social">
+          <li><span class="social-link mancante"><span class="social-nome">Instagram</span><small>Link da chiedere a Marta</small></span></li>
+          <li><span class="social-link mancante"><span class="social-nome">Facebook</span><small>Link da chiedere a Marta</small></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mappa">
+      <span class="spillo" aria-hidden="true"></span>
+      <p class="mappa-indirizzo">Via Pazzan 9, Pagnacco</p>
+      <p class="mappa-nota">Sul sito vero qui si apre la mappa di Google al tocco (con il consenso ai cookie). In questa bozza apri la mappa in una nuova scheda.</p>
+      <a class="bottone chiaro" href="https://www.google.com/maps/search/?api=1&amp;query=Stella+Polare+Via+Pazzan+9+Pagnacco" target="_blank" rel="noopener"><svg class="ic ic-spillo"><use href="#i-spillo"/></svg><span class="etic">Apri la mappa</span></a>
+    </div>
+    <div class="app-telefono">
+      <img class="app-icona" src="icona-192.png" alt="" width="84" height="84">
+      <div class="app-testo">
+        <h3>Stella Polare sul telefono</h3>
+        <p>Mettila tra le app: si apre come un'app vera, con orari e banco sempre a portata.</p>
+        <ol class="app-passi" id="app-passi"></ol>
+        <button class="bottone chiaro" id="installa" type="button" hidden><svg class="ic"><use href="#i-stella"/></svg><span class="etic">Installa</span></button>
+      </div>
+    </div>
+    <p class="saluto"><button type="button" id="saluto"><span data-solo="estate">Buon gelato.</span><span data-solo="inverno">Buone feste.</span></button></p>
+    <div class="piede">
+      <span>Gelateria Artigianale Stella Polare di Zampa Marta</span>
+      <span>Via Pazzan 9, 33010 Pagnacco (UD)</span>
+      <span>P.IVA da inserire</span>
+      <span>Privacy e cookie: da preparare</span>
+    </div>
+    <p class="bozza">Bozza di proposta FORGEfoundries: non è il sito ufficiale della gelateria. Prezzi, orari e testi sono da confermare.</p>
+  </div>
+</section>
+</main>
+
+<div class="bozza-bar" id="bozza-bar" role="group" aria-label="Scegli l'apertura (bozza)">
+  <span>Apertura</span>
+  <button type="button" data-apertura="stella">Stella</button>
+  <button type="button" data-apertura="banco">Banco</button>
+  <button type="button" data-apertura="notte">Notte</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  var RIDOTTO = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
+  function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function tra(q, a, b) { return clamp((q - a) / (b - a)); }
+  function dolce(t) { return t * t * (3 - 2 * t); }
+  function esce(t) { return 1 - Math.pow(1 - t, 3); }
+  function crea(tag, classe, testo) { var e = document.createElement(tag); if (classe) e.className = classe; if (testo != null) e.textContent = testo; return e; }
+  function salva(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v)); } catch (e) {} }
+  function leggi(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function stagione() { return root.getAttribute("data-stagione"); }
+  function apertura() { return root.getAttribute("data-v"); }
+  var TEL = "0432 661199";
+  var NS = "http://www.w3.org/2000/svg";
+  function icona(nome, classe) {
+    var s = document.createElementNS(NS, "svg"); s.setAttribute("class", "ic" + (classe ? " " + classe : "")); s.setAttribute("aria-hidden", "true");
+    var u = document.createElementNS(NS, "use"); u.setAttribute("href", "#i-" + nome); s.appendChild(u); return s;
+  }
+
+  /* =====================================================================
+     CATALOGO (solo dati veri; le descrizioni dei gusti sono brevi e da rivedere con Marta)
+     ===================================================================== */
+  var BANCO = {
+    estate: [
+      { id: "pistacchio", n: "Pistacchio di Bronte", k: "Pistacchio", t: "Crema", d: "Verde pieno, gusto tostato e deciso.", c: "pistacchio", r: -4 },
+      { id: "frutti-di-bosco", n: "Frutti di bosco", k: "Frutti di bosco", t: "Frutta", d: "Lamponi, more e mirtilli. Fresco e acidulo.", c: "fragola", r: 3 },
+      { id: "nocciola", n: "Nocciola IGP Piemonte", k: "Nocciola", t: "Crema", d: "La nocciola tonda gentile, tostata.", c: "nocciola", r: -2 },
+      { id: "cioccolato", n: "Cioccolato fondente", k: "Fondente", t: "Crema", d: "Scuro, intenso, poco dolce.", c: "inchiostro", r: 4 },
+      { id: "fiordilatte-amarena", n: "Fior di latte con amarena", k: "Fior di latte", t: "Crema", d: "Latte e panna, con amarene a filo.", c: "carta-amarena", r: -3 },
+      { id: "granita-sambuco", n: "Granita sambuco, menta e limone", k: "Granita", t: "Granita", d: "Fiori di sambuco, menta fresca, limone.", c: "menta", r: 2 }
+    ],
+    inverno: [
+      { id: "panettoni", n: "Panettoni", t: "Lievitati", d: "Fatti in laboratorio per le feste.", c: "nocciola", r: -3, ic: "panettone" },
+      { id: "gubane", n: "Gubane", t: "Dolce friulano", d: "Il dolce del Friuli, con noci, uvetta e pinoli.", c: "burro", r: 3, ic: "gubana" },
+      { id: "confetture", n: "Marmellate e confetture", k: "Marmellate", t: "Dispensa", d: "Frutta cotta in piccoli lotti.", c: "fragola", r: -2, ic: "vasetto" },
+      { id: "te", n: "Tè e tisane", t: "Dispensa", d: "Miscele per le sere d'inverno.", c: "menta", r: 4, ic: "te" },
+      { id: "spezie", n: "Spezie", t: "Dispensa", d: "Per vin brulé, biscotti e dolci di casa.", c: "cielo", r: -4, ic: "spezie" },
+      { id: "crema-cebuine", n: "Crema Cebuine", t: "Tutto l'anno", d: "Miele e nocciola IGP, da spalmare.", c: "pistacchio", r: 2, ic: "vasetto" }
+    ]
+  };
+  var LAB = {
+    estate: [
+      { n: "Gelato", d: "Creme e sorbetti preparati ogni giorno, in cono o in coppetta.", ic: "cono", c: "fragola" },
+      { n: "Granite siciliane", d: "La consistenza giusta, da mangiare al cucchiaio.", ic: "granita", c: "menta" },
+      { n: "Ghiaccioli di sola frutta", d: "Frutta e poco altro, per chi vuole qualcosa di leggero.", ic: "ghiacciolo", c: "pistacchio" },
+      { n: "Torte gelato e semifreddi", d: "Per compleanni, feste e pranzi della domenica.", ic: "torta", c: "nocciola" },
+      { n: "Crema Cebuine", d: "Miele e nocciola IGP, da spalmare.", ic: "vasetto", c: "burro" },
+      { n: "Senza glutine e vegano", d: "Una linea pensata per chi è celiaco o non mangia prodotti animali.", ic: "foglia", c: "cielo" }
+    ],
+    inverno: [
+      { n: "Panettoni", d: "Lievitati per le feste, fatti in laboratorio.", ic: "panettone", c: "nocciola" },
+      { n: "Gubane", d: "Il dolce del Friuli: noci, uvetta e pinoli.", ic: "gubana", c: "burro" },
+      { n: "Marmellate", d: "Frutta cotta in piccoli lotti.", ic: "vasetto", c: "fragola" },
+      { n: "Tè e tisane", d: "Da tenere in dispensa o da regalare.", ic: "te", c: "menta" },
+      { n: "Spezie", d: "Per il vin brulé e i dolci di casa.", ic: "spezie", c: "cielo" },
+      { n: "Idee regalo", d: "Chiedete in negozio: si compongono insieme.", ic: "regalo", c: "pistacchio" }
+    ]
+  };
+  var NASTRO = {
+    estate: ["Pistacchio", "Frutti di bosco", "Nocciola", "Fondente", "Fior di latte", "Granita", "Pagnacco", "Dal 2005"],
+    inverno: ["Panettone", "Gubana", "Marmellate", "Tè", "Spezie", "Crema Cebuine", "Buone feste", "Pagnacco"]
+  };
+  var SPUNTI = {
+    estate: ["Due bambini e un nonno goloso", "Qualcosa di fresco e leggero", "Mi piace il cioccolato", "Senza latte"],
+    inverno: ["Un regalo per la maestra", "Pranzo di Natale in dodici", "Qualcosa per chi ama il tè", "Un pensiero piccolo"]
+  };
+  var PH = {
+    estate: "Siamo in tre, a uno piace la frutta e agli altri le creme",
+    inverno: "Cerco un regalo per i suoceri, amano le cose tradizionali"
+  };
+  var COLORE = function (c) { return c === "carta-amarena" ? "#fbf1dc" : "var(--" + c + ")"; };
+
+  function riempiBanco() {
+    var s = stagione(), ul = $("vasche"); ul.textContent = "";
+    BANCO[s].forEach(function (v) {
+      var li = crea("li", "vasca"), fronte = crea("div", "vasca-fronte");
+      fronte.style.setProperty("--c", COLORE(v.c)); fronte.style.setProperty("--r", v.r + "deg");
+      if (v.c === "inchiostro") fronte.style.borderColor = "var(--inchiostro)";
+      var cart = crea("span", "cart"); cart.style.setProperty("--r", v.r + "deg");
+      cart.append(crea("span", "", v.k || v.n), crea("i"));
+      fronte.appendChild(cart);
+      if (v.ic) { var ic = icona(v.ic); if (v.c === "inchiostro") ic.style.color = "var(--carta)"; fronte.appendChild(ic); }
+      if (v.id === "fiordilatte-amarena") { var a = crea("span"); a.style.cssText = "position:absolute;inset:auto 0 26px 0;height:14px;background:#8e1a33"; fronte.appendChild(a); }
+      li.append(fronte, crea("p", "tipo", v.t), crea("h3", "", v.n), crea("p", "", v.d));
+      ul.appendChild(li);
+    });
+    var lab = $("piantati"); lab.textContent = "";
+    LAB[s].forEach(function (x) {
+      var li = crea("li", "piantato"); li.style.setProperty("--c", "var(--" + x.c + ")");
+      var testo = crea("div"); testo.append(crea("h3", "", x.n), crea("p", "", x.d));
+      li.append(icona(x.ic), testo); lab.appendChild(li);
+    });
+    var n = $("nastro"); n.textContent = "";
+    NASTRO[s].concat(NASTRO[s]).forEach(function (t) { n.appendChild(crea("span", "", t)); });
+    var sp = $("spunti"); sp.textContent = "";
+    SPUNTI[s].forEach(function (t) { var b = crea("button", "spunto", t); b.type = "button"; sp.appendChild(b); });
+    $("richiesta").placeholder = PH[s];
+  }
+
+  /* =====================================================================
+     STAGIONI: in automatico agli equinozi, oppure col bottone
+     ===================================================================== */
+  function prossimoCambio(t) {
+    var y = new Date(t).getUTCFullYear(), c = [SPF.equinozio(y, false), SPF.equinozio(y, true), SPF.equinozio(y + 1, false)];
+    for (var i = 0; i < c.length; i++) if (c[i] > t) return c[i];
+    return c[2];
+  }
+  function dipingiBottoni() {
+    var s = stagione(), testo = s === "estate" ? "Sta arrivando Natale" : "Sta arrivando l'estate", ic = s === "estate" ? "#i-stella" : "#i-sole";
+    $$("[data-cambia-stagione]").forEach(function (b) {
+      var e = b.querySelector(".etic"); if (e) e.textContent = testo;
+      b.querySelector("use").setAttribute("href", ic);
+      b.setAttribute("aria-label", testo + ": passa al sito " + (s === "estate" ? "d'inverno" : "d'estate"));
+    });
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", s === "estate" ? "#f3d56a" : "#2b1b14");
+  }
+  function applicaStagione(s) {
+    root.setAttribute("data-stagione", s);
+    dipingiBottoni(); riempiBanco(); disegnaOrari(); aggiornaStato(); costruisciLettere(); costruisciSegno(); osservaPannelli();
+    caricaFilm(); preparaPalco();
+  }
+  function cambiaStagione(da) {
+    var s = stagione() === "estate" ? "inverno" : "estate", ora = Date.now();
+    if (s === SPF.stagioneAuto(ora)) salva("spf-stagione", null); else salva("spf-stagione", { s: s, fino: prossimoCambio(ora) });
+    function fai() { applicaStagione(s); window.scrollTo(0, 0); avvia(); }
+    if (RIDOTTO || !document.startViewTransition) { fai(); return; }
+    var r = da ? da.getBoundingClientRect() : { left: innerWidth / 2, top: 0, width: 0, height: 0 };
+    var x = r.left + r.width / 2, y = r.top + r.height / 2, rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    var vt = document.startViewTransition(fai);
+    vt.ready.then(function () {
+      root.animate({ clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + rad + "px at " + x + "px " + y + "px)"] },
+        { duration: 950, easing: "cubic-bezier(.22,.61,.36,1)", pseudoElement: "::view-transition-new(root)" });
+    }).catch(function () {});
+  }
+  document.addEventListener("click", function (e) { var b = e.target.closest("[data-cambia-stagione]"); if (b) cambiaStagione(b); });
+  setInterval(function () { /* cambio vero all'equinozio, anche a pagina aperta */
+    var o = null; try { o = JSON.parse(leggi("spf-stagione")); } catch (e) {}
+    if (o && o.fino > Date.now()) return;
+    var a = SPF.stagioneAuto(Date.now()); if (a !== stagione()) applicaStagione(a);
+  }, 60000);
+
+  /* =====================================================================
+     APERTURA: il motore comune
+     ===================================================================== */
+  var hero = $("apertura"), palco = $("palco"), film = $("film"), fctx = film.getContext("2d"), cielo = $("cielo"), cctx = cielo.getContext("2d");
+  var W = 0, H = 0, DPR = 1;
+  var FILM = {
+    estate: { n: 145, first: 5, S: 13, cols: 3, fw: 640, fh: 954, src: function (k) { return "sprites/estate-" + ("0" + k).slice(-2) + ".webp"; } },
+    inverno: { n: 145, first: 0, S: 13, cols: 3, fw: 736, fh: 400, src: function (k) { return "sprites/inverno-" + ("0" + k).slice(-2) + ".jpg"; } }
+  };
+  var fogli = { estate: [], inverno: [] }, caricando = { estate: false, inverno: false };
+  /* Colori del palco per apertura e stagione: fondo intorno e fondo dentro la finestra sul video */
+  var PALCO = {
+    stella: { estate: { fuori: "#f3d56a", dentro: "#fbf1dc", ink: "#241812" }, inverno: { fuori: "#2b1b14", dentro: "#2a201a", ink: "#f6ecdc" } },
+    banco: { estate: { fuori: "#fbf5e6", dentro: "#f3d56a", ink: "#241812" }, inverno: { fuori: "#f6ecdc", dentro: "#2a201a", ink: "#2a1810" } },
+    notte: { estate: { fuori: "#17233d", dentro: "#f3d56a", ink: "#fbf5e6" }, inverno: { fuori: "#0f1626", dentro: "#2a201a", ink: "#f6ecdc" } }
+  };
+  function colori() { return PALCO[apertura()][stagione()]; }
+
+  function caricaFilm() {
+    var s = stagione(), f = FILM[s];
+    if (caricando[s]) return; caricando[s] = true;
+    var start = f.first % f.S, ordine = [];
+    for (var j = 0; j < f.S; j++) ordine.push((start + j * 5) % f.S);
+    if (navigator.connection && navigator.connection.saveData) ordine = ordine.slice(0, 7);
+    function prossimo() {
+      if (!ordine.length) return;
+      var k = ordine.shift(), im = new Image(); im.decoding = "async";
+      im.onload = function () { fogli[s][k] = im; disegnato = -1; if (s === stagione()) componi(q, performance.now()); prossimo(); };
+      im.onerror = prossimo;
+      im.src = f.src(k);
+    }
+    for (var c = 0; c < 3; c++) prossimo();
+  }
+  var disegnato = -1, ultimoV = -1;
+  function vicino(s, i) {
+    var f = FILM[s];
+    for (var d = 0; d < f.n; d++) {
+      if (i - d >= f.first && fogli[s][(i - d) % f.S]) return i - d;
+      if (i + d < f.n && fogli[s][(i + d) % f.S]) return i + d;
+    }
+    return -1;
+  }
+  /* Disegna il fotogramma v (0..1) a tutta tela, con il fondo della finestra */
+  function disegnaFilm(v) {
+    var s = stagione(), f = FILM[s], col = colori();
+    var i = f.first + Math.round(clamp(v) * (f.n - 1 - f.first)), k = vicino(s, i);
+    var chiave = s + apertura() + k + "|" + W + "x" + H;
+    if (chiave === disegnato) return;
+    disegnato = chiave;
+    fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    fctx.fillStyle = col.dentro; fctx.fillRect(0, 0, W, H);
+    if (k < 0) return;
+    var sc, contain = Math.min(W / f.fw, H / f.fh), cover = Math.max(W / f.fw, H / f.fh);
+    if (s === "estate") sc = Math.min(W / f.fw, (H * 0.9) / f.fh);
+    else sc = Math.min(cover, contain * 1.45);
+    var dw = f.fw * sc, dh = f.fh * sc, dx = (W - dw) / 2, dy = s === "estate" ? H - dh - H * 0.04 : (H - dh) / 2;
+    var slot = Math.floor(k / f.S), img = fogli[s][k % f.S];
+    fctx.drawImage(img, (slot % f.cols) * f.fw, Math.floor(slot / f.cols) * f.fh, f.fw, f.fh, dx, dy, dw, dh);
+    if (s === "inverno") { /* bordi sfumati nel fondo, così il video non sembra un rettangolo incollato */
+      var b = dw * 0.12, c = dh * 0.3, g;
+      [[dx, 0, dx + b, 0, dx, dy, b, dh], [dx + dw, 0, dx + dw - b, 0, dx + dw - b, dy, b, dh], [0, dy, 0, dy + c, dx, dy, dw, c], [0, dy + dh, 0, dy + dh - c, dx, dy + dh - c, dw, c]].forEach(function (z) {
+        g = fctx.createLinearGradient(z[0], z[1], z[2], z[3]); g.addColorStop(0, col.dentro); g.addColorStop(1, "rgba(42,32,26,0)");
+        fctx.fillStyle = g; fctx.fillRect(z[4], z[5], z[6], z[7]);
+      });
+    }
+  }
+
+  /* La stella a quattro punte del marchio, con i lati curvi */
+  function puntiStella(cx, cy, R, passi) {
+    var P = [[cx, cy - R], [cx + R, cy], [cx, cy + R], [cx - R, cy]], k = 0.11, C = [[cx + k * R, cy - k * R], [cx + k * R, cy + k * R], [cx - k * R, cy + k * R], [cx - k * R, cy - k * R]], out = [];
+    for (var i = 0; i < 4; i++) {
+      var a = P[i], b = P[(i + 1) % 4], c = C[i];
+      for (var s = 0; s < passi; s++) { var t = s / passi; out.push([(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]]); }
+    }
+    return out;
+  }
+  function pathStella(cx, cy, R) {
+    var k = 0.11;
+    return "M" + cx + " " + (cy - R) + "Q" + (cx + k * R) + " " + (cy - k * R) + " " + (cx + R) + " " + cy + "Q" + (cx + k * R) + " " + (cy + k * R) + " " + cx + " " + (cy + R) +
+      "Q" + (cx - k * R) + " " + (cy + k * R) + " " + (cx - R) + " " + cy + "Q" + (cx - k * R) + " " + (cy - k * R) + " " + cx + " " + (cy - R) + "Z";
+  }
+
+  /* ---------- Apertura 1: la stella si apre ---------- */
+  var pAlto = $("p-alto"), pBasso = $("p-basso"), stellaPath = $("stella-path"), dimParola = 100;
+  function preparaStella() {
+    /* le due parole riempiono la larghezza senza superare un terzo dell'altezza */
+    pAlto.style.fontSize = "100px";
+    var w = Math.max(pAlto.offsetWidth, pBasso.offsetWidth) || 300;
+    dimParola = Math.min(100 * (W * 0.9) / w, H * 0.34);
+    pAlto.style.fontSize = pBasso.style.fontSize = dimParola + "px";
+    $("stella-oro").setAttribute("viewBox", "0 0 " + W + " " + H);
+  }
+  function componiStella(q) {
+    var cx = W / 2, cy = H * 0.5, diag = Math.hypot(W, H);
+    var R0 = dimParola * 0.42, apri = esce(tra(q, 0.1, 0.64)), R = R0 + (diag * 1.3 - R0) * apri;
+    var gap = dimParola * 0.5 + R * 0.95;
+    pAlto.style.transform = "translate(-50%, calc(-100% - " + (gap - dimParola * 0.38).toFixed(1) + "px)) scale(" + (1 + apri * 0.3).toFixed(3) + ")";
+    pBasso.style.transform = "translate(-50%, " + (gap - dimParola * 0.38).toFixed(1) + "px) scale(" + (1 + apri * 0.3).toFixed(3) + ")";
+    stellaPath.setAttribute("d", pathStella(cx, cy, R));
+    stellaPath.style.opacity = (1 - tra(q, 0.1, 0.15)).toFixed(3);
+    if (apri >= 1) film.style.clipPath = "none";
+    else film.style.clipPath = "polygon(" + puntiStella(cx, cy, R, 10).map(function (p) { return p[0].toFixed(1) + "px " + p[1].toFixed(1) + "px"; }).join(",") + ")";
+    return tra(q, 0.2, 0.95);
+  }
+
+  /* ---------- Apertura 2: il banco delle vaschette ---------- */
+  var PAROLA = { estate: "Gelato", inverno: "Panettone" };
+  var GUSTI_LETTERE = ["Pistacchio", "Frutti di bosco", "Nocciola", "Fondente", "Fior di latte", "Granita"];
+  var COLORI_LETTERE = {
+    estate: ["#a9c96a", "#f19bb0", "#d8a46a", "#4a2a1c", "#fbf1dc", "#9fd8c0"],
+    inverno: ["#c9773f", "#e9b25c", "#8e2a33", "#d9b98f", "#8fa76a", "#e2a08c", "#c99a45", "#b9c7a4", "#f6ecdc"]
+  };
+  var lettere = [], spatola = $("spatola"), vaschette = $("vaschette");
+  function costruisciLettere() {
+    var box = $("lettere"), s = stagione(), p = PAROLA[s]; box.textContent = ""; lettere = [];
+    p.split("").forEach(function (ch, i) {
+      var l = crea("span", "lettera"); l.style.setProperty("--c", COLORI_LETTERE[s][i % COLORI_LETTERE[s].length]); l.style.setProperty("--r", (i % 2 ? 4 : -4) + "deg");
+      l.append(crea("span", "vuota", ch), crea("span", "piena", ch));
+      if (s === "estate") l.appendChild(crea("small", "", GUSTI_LETTERE[i]));
+      box.appendChild(l); lettere.push(l);
+    });
+  }
+  function preparaBanco() {
+    var box = $("lettere"); box.style.fontSize = "100px";
+    var w = lettere.reduce(function (t, l) { return t + l.querySelector(".vuota").offsetWidth; }, 0) || 400;
+    box.style.fontSize = Math.min(100 * (W * 0.92) / w, H * 0.34) + "px";
+  }
+  function componiBanco(q) {
+    var n = lettere.length, span = 0.36 / n;
+    lettere.forEach(function (l, i) { l.style.setProperty("--f", dolce(tra(q, 0.03 + i * span, 0.03 + (i + 1.4) * span)).toFixed(3)); });
+    var x = esce(tra(q, 0.42, 0.6)) * (W * 1.25) - W * 0.1;      /* la spatola passa da sinistra a destra */
+    spatola.style.transform = "translate(" + (x - spatola.offsetWidth / 2).toFixed(1) + "px, -50%) rotate(" + (18 - 30 * tra(q, 0.42, 0.6)).toFixed(1) + "deg)";
+    spatola.style.visibility = q > 0.4 && q < 0.62 ? "visible" : "hidden";
+    var px = Math.max(0, Math.min(W, x));
+    film.style.clipPath = px >= W ? "none" : "inset(0 " + (W - px).toFixed(1) + "px 0 0)";
+    vaschette.style.clipPath = "inset(0 0 0 " + px.toFixed(1) + "px)";
+    return tra(q, 0.52, 0.95);
+  }
+
+  /* ---------- Apertura 3: la notte di Pagnacco ---------- */
+  var notteSvg = $("notte-svg"), firma = $("firma-notte"), STELLE = [], N3 = {};
+  function preparaNotte() {
+    var orizzonte = H * 0.8, ox = W * (W > H ? 0.18 : 0.12), ang = 46 * Math.PI / 180;
+    var L = Math.min((W * 0.72) / Math.cos(ang), (orizzonte - H * 0.16) / Math.sin(ang));
+    N3 = { oy: orizzonte, ox: ox, px: ox + L * Math.cos(ang), py: orizzonte - L * Math.sin(ang), r0: Math.max(16, Math.min(W, H) * 0.035) };
+    STELLE = [];
+    var seme = 7; function rnd() { seme = (seme * 9301 + 49297) % 233280; return seme / 233280; }
+    for (var i = 0; i < Math.round(W * H / 5200); i++) STELLE.push({ x: rnd() * W, y: rnd() * orizzonte * 0.98, r: 0.6 + rnd() * 1.4, f: rnd() * 6.28 });
+    var col = stagione() === "estate" ? ["#22325a", "#1b2848"] : ["#162039", "#111a2f"];
+    notteSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    notteSvg.innerHTML =
+      '<path d="M0 ' + (orizzonte - H * 0.05) + ' C' + W * 0.2 + ' ' + (orizzonte - H * 0.11) + ' ' + W * 0.38 + ' ' + (orizzonte - H * 0.02) + ' ' + W * 0.6 + ' ' + (orizzonte - H * 0.07) + ' S' + W * 0.9 + ' ' + (orizzonte - H * 0.1) + ' ' + W + ' ' + (orizzonte - H * 0.04) + ' V' + H + ' H0Z" fill="' + col[0] + '"/>' +
+      '<path d="M0 ' + (orizzonte + H * 0.02) + ' C' + W * 0.3 + ' ' + (orizzonte - H * 0.04) + ' ' + W * 0.55 + ' ' + (orizzonte + H * 0.04) + ' ' + W + ' ' + (orizzonte - H * 0.01) + ' V' + H + ' H0Z" fill="' + col[1] + '"/>' +
+      '<line id="n-orizzonte" x1="0" x2="' + W + '" y1="' + orizzonte + '" y2="' + orizzonte + '" stroke="#fbf5e6" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="3 7"/>' +
+      '<line id="n-raggio" x1="' + ox + '" y1="' + orizzonte + '" x2="' + N3.px + '" y2="' + N3.py + '" stroke="#f3d56a" stroke-width="2" stroke-dasharray="6 8"/>' +
+      '<path id="n-arco" d="M' + (ox + 70) + ' ' + orizzonte + ' A70 70 0 0 0 ' + (ox + 70 * Math.cos(ang)) + ' ' + (orizzonte - 70 * Math.sin(ang)) + '" fill="none" stroke="#f3d56a" stroke-width="2"/>' +
+      '<text id="n-gradi" x="' + (ox + 82) + '" y="' + (orizzonte - 22) + '" fill="#f3d56a" font-family="Bricolage Grotesque, Arial Narrow, sans-serif" font-weight="800" font-size="' + Math.max(22, W * 0.022) + '">46°</text>' +
+      '<text x="' + ox + '" y="' + (orizzonte + 28) + '" fill="#fbf5e6" fill-opacity=".7" font-family="Figtree, Arial, sans-serif" font-weight="700" font-size="12" letter-spacing="2.4">PAGNACCO · VIA PAZZAN 9</text>' +
+      '<g id="n-stella"><circle id="n-alone" r="10" fill="#f3d56a" fill-opacity=".14"/><path id="n-punta" fill="#fff6c9"/></g>';
+    firma.style.top = Math.max(H * 0.2, 150) + "px";
+  }
+  function disegnaCielo(t, q) {
+    cctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    cctx.fillStyle = colori().fuori; cctx.fillRect(0, 0, W, H);
+    cctx.fillStyle = "#fbf5e6";
+    var luce = 1 - tra(q, 0.3, 0.5);
+    STELLE.forEach(function (s) {
+      var a = RIDOTTO ? 0.7 : 0.45 + 0.4 * Math.sin(t / 900 + s.f);
+      cctx.globalAlpha = a * luce; cctx.beginPath(); cctx.arc(s.x, s.y, s.r, 0, 6.283); cctx.fill();
+    });
+    cctx.globalAlpha = 1;
+  }
+  function componiNotte(q, t) {
+    disegnaCielo(t, q);
+    var acc = dolce(tra(q, 0.02, 0.18)), scende = dolce(tra(q, 0.24, 0.42));
+    var x = N3.px + (W / 2 - N3.px) * scende, y = N3.py + (H * 0.5 - N3.py) * scende;
+    var R = N3.r0 * (0.4 + acc * 0.9) * (1 + scende * 2.2);
+    $("n-punta").setAttribute("d", pathStella(x, y, R));
+    var alone = $("n-alone"); alone.setAttribute("cx", x); alone.setAttribute("cy", y); alone.setAttribute("r", (R * (1.6 + 0.25 * Math.sin(t / 400))).toFixed(1));
+    var traccia = 1 - tra(q, 0.2, 0.3);
+    ["n-raggio", "n-arco", "n-gradi"].forEach(function (id) { $(id).style.opacity = (Math.min(acc * 1.4, 1) * traccia).toFixed(3); });
+    notteSvg.style.opacity = (1 - tra(q, 0.42, 0.56)).toFixed(3);
+    $("n-stella").style.opacity = (1 - tra(q, 0.44, 0.5)).toFixed(3);
+    firma.style.opacity = (dolce(tra(q, 0.08, 0.2)) * (1 - tra(q, 0.3, 0.4))).toFixed(3);
+    firma.style.transform = "translateY(" + ((1 - dolce(tra(q, 0.08, 0.2))) * 20).toFixed(1) + "px)";
+    var cerchio = esce(tra(q, 0.4, 0.62)) * Math.hypot(W, H);
+    film.style.clipPath = cerchio <= 0.5 ? "circle(0px at 50% 50%)" : "circle(" + cerchio.toFixed(1) + "px at " + (W / 2) + "px " + (H * 0.5) + "px)";
+    return tra(q, 0.5, 0.95);
+  }
+
+  /* ---------- Indicatore del mestiere ---------- */
+  var segno = $("segno"), pezziSegno = [];
+  function costruisciSegno() {
+    segno.innerHTML = stagione() === "estate"
+      ? '<svg viewBox="0 0 40 64"><path d="M8 30l12 32 12-32z" fill="#e3a95c" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle class="riempi" cx="20" cy="26" r="9" fill="#a9c96a" stroke="currentColor" stroke-width="2.4"/><circle class="riempi" cx="20" cy="15" r="8.5" fill="#f19bb0" stroke="currentColor" stroke-width="2.4"/><circle class="riempi" cx="20" cy="5" r="7" fill="#d8a46a" stroke="currentColor" stroke-width="2.4"/></svg>'
+      : '<svg viewBox="0 0 44 44"><path d="M6 20h32v18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" fill="#f6ecdc" stroke="currentColor" stroke-width="2.4"/><path d="M4 21c0-10 8-16 18-16s18 6 18 16z" fill="#c9773f" stroke="currentColor" stroke-width="2.4"/><path class="riempi" d="M22 4v36" stroke="currentColor" stroke-width="2.4"/><path class="riempi" d="M12 6l4 34" stroke="currentColor" stroke-width="2.4"/><path class="riempi" d="M32 6l-4 34" stroke="currentColor" stroke-width="2.4"/></svg>';
+    pezziSegno = $$(".riempi", segno);
+  }
+  function aggiornaSegno(q) {
+    pezziSegno.forEach(function (p, i) { p.classList.toggle("on", q >= [0.3, 0.55, 0.8][i]); });
+  }
+
+  /* ---------- Il ciclo: scroll con inerzia ---------- */
+  var q = 0, meta = 0, prima = 0, gira = false, inVista = true, fine = $("fine"), invito = $("invito");
+  function metaScroll() { var r = hero.getBoundingClientRect(), corsa = r.height - palco.offsetHeight; return corsa > 4 ? clamp(-r.top / corsa) : 1; }
+  function preparaPalco() {
+    var c = colori();
+    W = palco.clientWidth; H = palco.clientHeight; DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+    [film, cielo].forEach(function (cv) { cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); });
+    hero.style.setProperty("--hero-bg", c.fuori); hero.style.setProperty("--hero-ink", c.ink);
+    preparaStella(); preparaBanco(); preparaNotte();
+    disegnato = -1; film.style.clipPath = "";
+    vaschette.style.clipPath = "";
+    componi(q, performance.now());
+  }
+  function componi(qq, t) {
+    var v = apertura() === "stella" ? componiStella(qq) : apertura() === "banco" ? componiBanco(qq) : componiNotte(qq, t);
+    disegnaFilm(v);
+    aggiornaSegno(qq);
+    fine.classList.toggle("si", qq > 0.88);
+    invito.style.opacity = (1 - tra(qq, 0.05, 0.15)).toFixed(3);
+  }
+  function fotogramma(t) {
+    var dt = prima ? Math.min(64, t - prima) : 16; prima = t;
+    meta = metaScroll();
+    q += (meta - q) * (1 - Math.exp(-dt / 95));
+    if (Math.abs(meta - q) < 0.0004) q = meta;
+    componi(q, t);
+    if (inVista && (q !== meta || apertura() === "notte")) requestAnimationFrame(fotogramma); else { gira = false; prima = 0; }
+  }
+  function avvia() { if (!gira && !RIDOTTO) { gira = true; requestAnimationFrame(fotogramma); } }
+  window.addEventListener("scroll", avvia, { passive: true });
+  var timerMisure;
+  window.addEventListener("resize", function () { clearTimeout(timerMisure); timerMisure = setTimeout(preparaPalco, 120); });
+  if ("IntersectionObserver" in window) new IntersectionObserver(function (v) { inVista = v[0].isIntersecting; if (inVista) avvia(); }).observe(hero);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(preparaPalco, function () {});
+
+  /* ---------- Scegli l'apertura (bozza) ---------- */
+  function segnaApertura() { $$("[data-apertura]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-apertura") === apertura())); }); }
+  $("bozza-bar").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-apertura]"); if (!b) return;
+    root.setAttribute("data-v", b.getAttribute("data-apertura")); salva("spf-apertura", b.getAttribute("data-apertura"));
+    segnaApertura(); window.scrollTo(0, 0); q = meta = 0; preparaPalco(); avvia();
+  });
+  segnaApertura();
+
+  /* =====================================================================
+     ORARI E STATO (ora di Pagnacco). DA CONFERMARE con Marta: per ora
+     estate mar–dom 13:00–23:00, inverno mar–dom 9:00–12:30 e 15:00–19:30. Lunedì chiuso (certo).
+     ===================================================================== */
+  var APERTURA = {
+    estate: { 1: [], 2: [[780, 1380]], 3: [[780, 1380]], 4: [[780, 1380]], 5: [[780, 1380]], 6: [[780, 1380]], 0: [[780, 1380]] },
+    inverno: { 1: [], 2: [[540, 750], [900, 1170]], 3: [[540, 750], [900, 1170]], 4: [[540, 750], [900, 1170]], 5: [[540, 750], [900, 1170]], 6: [[540, 750], [900, 1170]], 0: [[540, 750], [900, 1170]] }
+  };
+  var GIORNI = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+  var formato = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  function adesso() { var g = {}; formato.formatToParts(new Date()).forEach(function (p) { g[p.type] = p.value; }); return { giorno: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(g.weekday), minuti: parseInt(g.hour, 10) % 24 * 60 + parseInt(g.minute, 10) }; }
+  function hhmm(m) { m = m % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); }
+  function statoOra() {
+    var A = APERTURA[stagione()], a = adesso(), oggi = A[a.giorno], i, d, j;
+    for (i = 0; i < oggi.length; i++) if (a.minuti >= oggi[i][0] && a.minuti < oggi[i][1]) return { aperto: true, titolo: "Aperto", det: "chiude alle " + hhmm(oggi[i][1]) };
+    for (d = 0; d < 8; d++) {
+      var gg = (a.giorno + d) % 7, f = A[gg];
+      for (j = 0; j < f.length; j++) if (d > 0 || f[j][0] > a.minuti) return { aperto: false, titolo: "Chiuso", det: "apre " + (d === 0 ? "oggi" : d === 1 ? "domani" : GIORNI[gg]) + " alle " + hhmm(f[j][0]) };
+    }
+    return { aperto: false, titolo: "Chiuso", det: "" };
+  }
+  var stato = $("stato");
+  function aggiornaStato() {
+    var s = statoOra();
+    stato.classList.toggle("aperto", s.aperto);
+    $("stato-titolo").textContent = s.titolo; $("stato-dettaglio").textContent = s.det;
+    $("cartellino").setAttribute("aria-label", s.titolo + ", " + s.det + ". Vai agli orari");
+  }
+  function disegnaOrari() {
+    var A = APERTURA[stagione()], dl = $("orari"), ordine = [1, 2, 3, 4, 5, 6, 0], oggi = adesso().giorno, gruppi = [];
+    dl.textContent = "";
+    function testo(g) { return A[g].length ? A[g].map(function (f) { return hhmm(f[0]) + " – " + hhmm(f[1]); }).join(" · ") : "chiuso"; }
+    ordine.forEach(function (g) { var t = testo(g), u = gruppi[gruppi.length - 1]; if (u && u.t === t) u.g.push(g); else gruppi.push({ t: t, g: [g] }); });
+    gruppi.forEach(function (gr) {
+      var cap = function (g) { var n = GIORNI[g]; return n.charAt(0).toUpperCase() + n.slice(1, 3); };
+      var nome = gr.g.length === 1 ? GIORNI[gr.g[0]].charAt(0).toUpperCase() + GIORNI[gr.g[0]].slice(1) : cap(gr.g[0]) + " – " + cap(gr.g[gr.g.length - 1]);
+      var dt = crea("dt", "", nome), dd = crea("dd", "", gr.t);
+      if (gr.g.indexOf(oggi) >= 0) { dt.className = dd.className = "oggi"; }
+      dl.append(dt, dd);
+    });
+  }
+  setInterval(aggiornaStato, 30000);
+
+  /* Il cartellino compare dopo l'apertura e oscilla a molla con lo scroll */
+  var perno = $("perno"), fissa = document.querySelector(".stagione-fissa"), bozzaBar = $("bozza-bar");
+  function mostraFissi() {
+    var dentro = hero.getBoundingClientRect().bottom > window.innerHeight * 0.5;
+    stato.classList.toggle("fuori", dentro); fissa.classList.toggle("fuori", dentro);
+  }
+  window.addEventListener("scroll", mostraFissi, { passive: true });
+  var spingi = function () {};
+  (function () {
+    if (RIDOTTO) return;
+    var ang = 0, vel = 0, y0 = window.scrollY || 0, t0 = 0;
+    function oscilla(t) {
+      var dt = t0 ? Math.min(0.05, (t - t0) / 1000) : 0.016; t0 = t;
+      var y = window.scrollY || 0, dy = y - y0; y0 = y;
+      vel += Math.max(-60, Math.min(60, dy * 1.1));
+      vel += (-ang * 40 - vel * 3.2) * dt;
+      ang = Math.max(-32, Math.min(32, ang + vel * dt));
+      if (Math.abs(ang) < 0.02 && Math.abs(vel) < 0.05) { ang = 0; vel = 0; }
+      perno.style.transform = "rotate(" + ang.toFixed(2) + "deg)";
+      requestAnimationFrame(oscilla);
+    }
+    spingi = function (f) { vel += f || 200; };
+    requestAnimationFrame(oscilla);
+  })();
+
+  /* =====================================================================
+     CHE GUSTO PRENDO? Solo voci del banco, mai garanzie sulle allergie
+     ===================================================================== */
+  var box = $("consiglio-box"), assente = $("consiglio-assente"), campo = $("richiesta"), invia = $("consiglia"), risposta = $("risposta"), proposte = $("proposte"), attenzione = $("attenzione");
+  var ALLERGIE = /allerg|intolleran|celiac|glutin|lattos|anafilass|frutta a guscio|nocciol.*allerg/i;
+  var sample = null, ctl = null;
+  function perId() { var m = {}; BANCO[stagione()].forEach(function (v) { m[v.id] = v; }); return m; }
+  function domanda(richiesta) {
+    var s = stagione(), elenco = BANCO[s].map(function (v) { return v.id + " | " + v.n + " | " + v.t + " | " + v.d; }).join("\n");
+    return [
+      s === "estate"
+        ? "Sei il consigliere della Gelateria Artigianale Stella Polare di Pagnacco (Friuli). Aiuti a scegliere i gusti di gelato. Rispondi in italiano, cordiale e breve."
+        : "Sei il consigliere della bottega di Natale della Gelateria Stella Polare di Pagnacco (Friuli). Aiuti a scegliere cosa comprare o regalare per le feste. Rispondi in italiano, cordiale e breve.",
+      "Puoi proporre SOLO voci di questo elenco (id | nome | tipo | descrizione):",
+      elenco,
+      "Regole:",
+      "- Proponi da 1 a 4 voci adatte alla richiesta, usando esattamente gli id dell'elenco.",
+      "- Non inventare gusti, prezzi, pezzature o ingredienti che non sono scritti.",
+      "- Per vegano o senza latte: di' che ogni giorno al banco ci sono gusti vegani e che li indicano loro; i sorbetti di frutta e la granita sono le scelte più probabili ma vanno chiesti.",
+      "- Se si parla di allergie, intolleranze, celiachia, glutine, lattosio o frutta a guscio: non dare garanzie e scrivi di chiedere al banco o allo " + TEL + ".",
+      "- Se la richiesta non riguarda la gelateria, rispondi che puoi aiutare solo a scegliere dal banco, senza proposte.",
+      "Rispondi solo con JSON: {\"messaggio\": \"una o due frasi\", \"proposte\": [{\"id\": \"id dell'elenco\", \"perche\": \"al massimo 12 parole\"}]}",
+      "Richiesta del cliente:",
+      "\"\"\"" + richiesta.slice(0, 600) + "\"\"\""
+    ].join("\n");
+  }
+  function mostra(dati) {
+    var P = perId();
+    risposta.textContent = dati && typeof dati.messaggio === "string" ? dati.messaggio : "";
+    proposte.textContent = "";
+    var visti = {};
+    (dati && Array.isArray(dati.proposte) ? dati.proposte : []).forEach(function (p) {
+      var id = p && String(p.id || ""), v = P[id];
+      if (!v || visti[id] || proposte.children.length >= 4) return;
+      visti[id] = true;
+      var li = crea("li", "proposta"); li.style.setProperty("--c", COLORE(v.c));
+      li.append(crea("span", "cat", v.t), crea("h3", "", v.n), crea("p", "", v.d));
+      if (p.perche) li.appendChild(crea("p", "perche", String(p.perche)));
+      proposte.appendChild(li);
+    });
+    if (!risposta.textContent && !proposte.children.length) risposta.textContent = "Non ho trovato niente di adatto: prova a dirlo con altre parole.";
+  }
+  function nonDisponibile() { box.hidden = true; assente.hidden = false; }
+  function chiedi(r) {
+    r = (r || "").trim(); if (!r) { campo.focus(); return; }
+    if (!sample) { risposta.textContent = "Un attimo…"; pronto.then(function (fn) { if (fn) chiedi(r); else nonDisponibile(); }); return; }
+    if (ctl) ctl.abort(); ctl = new AbortController();
+    invia.disabled = true; risposta.textContent = "Ci penso…"; proposte.textContent = "";
+    attenzione.hidden = !ALLERGIE.test(r);
+    sample.json(domanda(r), { modelTier: "quick", signal: ctl.signal }).then(mostra, function (e) {
+      var c = e && e.code; if (c === "cancelled") return;
+      if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed", "session_expired"].indexOf(c) >= 0) { nonDisponibile(); return; }
+      risposta.textContent = c === "rate_limited" ? "Troppe domande in poco tempo: riprova tra un po'." : "Non sono riuscito a rispondere. Riprova con parole diverse.";
+    }).then(function () { invia.disabled = false; });
+  }
+  $("consiglio-modulo").addEventListener("submit", function (e) { e.preventDefault(); chiedi(campo.value); });
+  $("spunti").addEventListener("click", function (e) { var s = e.target.closest(".spunto"); if (s) { campo.value = s.textContent; chiedi(campo.value); } });
+  var pronto = (window.claude && typeof window.claude.use === "function")
+    ? window.claude.use("sample").then(function (fn) { return fn || null; }, function () { return null; })
+    : Promise.resolve(null);
+  pronto.then(function (fn) { sample = fn; if (!fn) nonDisponibile(); });
+
+  /* =====================================================================
+     APP SUL TELEFONO (funziona solo sul dominio vero)
+     ===================================================================== */
+  (function () {
+    var vero = location.protocol === "https:" && !/claude\.(ai|site)|claudeusercontent|localhost/.test(location.hostname);
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), passi = $("app-passi");
+    (ios ? [["Apri il sito con ", "Safari"], ["Tocca ", "Condividi"], ["Scegli ", "Aggiungi alla schermata Home"]] : [["Apri il sito con ", "Chrome"], ["Tocca il menu ", "⋮"], ["Scegli ", "Installa app"]]).forEach(function (p) {
+      var li = crea("li"); li.append(document.createTextNode(p[0]), crea("b", "", p[1])); passi.appendChild(li);
+    });
+    var richiesta = null, b = $("installa");
+    window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); richiesta = e; b.hidden = false; });
+    b.addEventListener("click", function () { if (richiesta) { richiesta.prompt(); richiesta.userChoice.then(function () { richiesta = null; b.hidden = true; }, function () {}); } });
+    if (vero && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+  })();
+
+  /* =====================================================================
+     PICCOLE SORPRESE (solo di questa gelateria)
+     1. scrivi "stella" sulla tastiera: passa una stella cadente
+     2. tocca 5 volte il cartellino: si gira e saluta
+     3. tocca il saluto in fondo: piovono palline (estate) o stelline (inverno)
+     ===================================================================== */
+  var tasti = "";
+  document.addEventListener("keydown", function (e) {
+    if (/input|textarea/i.test((e.target.tagName || ""))) return;
+    tasti = (tasti + (e.key || "").toLowerCase()).slice(-6);
+    if (tasti === "stella" && !RIDOTTO) { var s = crea("span", "cadente"); document.body.appendChild(s); setTimeout(function () { s.remove(); }, 1500); }
+  });
+  var tocchi = 0, timerTocchi;
+  $("cartellino").addEventListener("click", function (e) {
+    tocchi++; clearTimeout(timerTocchi); timerTocchi = setTimeout(function () { tocchi = 0; }, 900);
+    spingi(260);
+    if (tocchi >= 5) {
+      e.preventDefault(); tocchi = 0;
+      var c = $("cartellino"), b = $("stato-titolo"), sm = $("stato-dettaglio"), vb = b.textContent, vs = sm.textContent;
+      c.classList.remove("gira"); void c.offsetWidth; c.classList.add("gira");
+      setTimeout(function () { b.textContent = stagione() === "estate" ? "Ciao!" : "Auguri!"; sm.textContent = stagione() === "estate" ? "un cono?" : "buone feste"; }, 400);
+      setTimeout(function () { b.textContent = vb; sm.textContent = vs; }, 2600);
+    } else if (tocchi > 1) e.preventDefault();
+  });
+  $("saluto").addEventListener("click", function () {
+    if (RIDOTTO) return;
+    var estate = stagione() === "estate", colori = estate ? ["#a9c96a", "#f19bb0", "#d8a46a", "#9fd8c0", "#fbf1dc"] : ["#e9b25c", "#c99a45", "#f6ecdc", "#e2a08c"];
+    for (var i = 0; i < 26; i++) {
+      var g = crea("span", "pioggia"); g.style.left = (Math.random() * 100) + "vw"; g.style.setProperty("--d", (1.4 + Math.random() * 1.4) + "s"); g.style.setProperty("--g", (Math.random() * 600 - 300) + "deg");
+      var col = colori[i % colori.length];
+      g.innerHTML = estate
+        ? '<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="' + col + '" stroke="#241812" stroke-width="2.5"/></svg>'
+        : '<svg viewBox="0 0 24 24"><path d="' + pathStella(12, 12, 11) + '" fill="' + col + '" stroke="#241812" stroke-width="1.5"/></svg>';
+      g.style.animationDelay = (Math.random() * 0.6) + "s";
+      document.body.appendChild(g);
+      (function (el) { setTimeout(function () { el.remove(); }, 3600); })(g);
+    }
+  });
+
+  /* Pannelli che entrano col movimento: dove il browser non ha animation-timeline restano fermi (nessun nascondimento) */
+  function osservaPannelli() {}
+
+  /* ---------- Avvio ---------- */
+  if (RIDOTTO) { hero.classList.add("ferma"); }
+  dipingiBottoni(); riempiBanco(); disegnaOrari(); aggiornaStato(); costruisciLettere(); costruisciSegno(); mostraFissi();
+  caricaFilm();
+  preparaPalco();
+  if (RIDOTTO) { q = 1; componi(1, 0); }
+  avvia();
+})();
+</script>
+</body>
+</html>
