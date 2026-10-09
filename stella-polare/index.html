@@ -107,6 +107,7 @@ html[data-season="inverno"] [data-only="estate"]{ display:none !important; }
 /* ================= BASE ================= */
 *,*::before,*::after{ box-sizing:border-box; }
 html{ -webkit-text-size-adjust:100%; scroll-padding-top:80px; }
+@supports (overflow:clip){ html{ overflow-x:clip; } }
 body{
   margin:0; background:var(--paper); color:var(--ink);
   font-family:var(--sans); font-weight:300; font-size:17px; line-height:1.6;
@@ -653,6 +654,69 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
 .toast span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .toast button{ border:0; cursor:pointer; height:34px; padding:0 14px; border-radius:999px; background:var(--paper); color:var(--ink); font-size:13px; font-weight:500; white-space:nowrap; }
 
+/* ================= CARTELLO APERTO / CHIUSO ================= */
+/* Appeso a un gancetto sotto la barra, oscilla a molla quando si scorre. Compare dopo la hero. */
+.stato{
+  position:fixed; z-index:45; right:max(16px, env(safe-area-inset-right,0px)); top:calc(58px + env(safe-area-inset-top,0px));
+  width:104px; display:flex; flex-direction:column; align-items:center; pointer-events:none;
+  transition:transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .3s ease;
+}
+@media (min-width:980px){ .stato{ top:calc(70px + env(safe-area-inset-top,0px)); right:max(28px, env(safe-area-inset-right,0px)); } }
+.stato.fuori{ transform:translateY(-30px); opacity:0; }
+body.menu-open .stato, body.cart-open .stato{ opacity:0; }
+.gancio{ width:22px; height:22px; color:var(--gold-deep); position:relative; z-index:2; }
+.gancio svg{ width:22px; height:22px; overflow:visible; }
+.pendolo{ margin-top:-7px; display:flex; flex-direction:column; align-items:center; transform-origin:50% 0; will-change:transform; }
+.cordino{ width:2px; height:26px; background:var(--ink); opacity:.8; }
+.tag{
+  pointer-events:auto; position:relative; width:104px; padding:18px 8px 10px; margin-top:-4px;
+  display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; cursor:pointer;
+  background:#fffdf8; color:#1c1814; border:1.5px solid rgba(28,24,20,.75); border-radius:10px;
+  box-shadow:0 12px 22px -10px rgba(40,25,10,.45);
+}
+.tag::before{ content:""; position:absolute; top:6px; left:50%; width:8px; height:8px; margin-left:-4px; border-radius:50%; border:1.5px solid rgba(28,24,20,.75); background:var(--paper); }
+:root[data-season="inverno"] .tag{ border-radius:3px; clip-path:polygon(18% 0,82% 0,100% 15%,100% 100%,0 100%,0 15%); background:#fbf3e6; border:0; box-shadow:inset 0 0 0 1.5px rgba(43,29,22,.7); }
+:root[data-season="inverno"] .cordino{ background:#9c3b2e; width:2.5px; opacity:1; }
+.tag b{ font-family:var(--serif); font-weight:600; font-size:25px; line-height:1; letter-spacing:.02em; text-transform:uppercase; }
+.stato.aperto .tag b{ color:#2f7d4f; }
+.tag small{ font-size:9.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; text-align:center; line-height:1.25; color:#6e665c; text-wrap:balance; }
+.tag.gira{ animation:giratag .8s ease-in-out; }
+@keyframes giratag{ 50%{ transform:rotateY(180deg); } 100%{ transform:rotateY(360deg); } }
+
+/* ================= NON SAI COSA SCEGLIERE? ================= */
+.consiglio{ background:var(--t2); }
+.consiglio-grid{ display:grid; gap:40px; }
+@media (min-width:900px){ .consiglio-grid{ grid-template-columns:5fr 7fr; gap:clamp(56px,8vw,120px); align-items:start; } }
+#consiglio-box{ display:flex; flex-direction:column; gap:18px; }
+.domanda{ display:flex; flex-direction:column; gap:12px; }
+.domanda label{ font-size:11px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; }
+.domanda textarea{ font:400 17px/1.45 var(--sans); padding:16px 18px; min-height:110px; resize:vertical; border:0; border-radius:18px; background:var(--paper); color:var(--ink); width:100%; box-shadow:inset 0 0 0 1.5px var(--rule); }
+.domanda textarea:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+.spunti{ display:flex; flex-wrap:wrap; gap:8px; }
+.spunto{ min-height:38px; padding:0 14px; border:0; border-radius:999px; background:var(--paper); color:var(--ink); font:500 13.5px/1 var(--sans); cursor:pointer; transition:transform .2s var(--ease), background-color .2s var(--ease); }
+.spunto:hover{ transform:translateY(-2px) rotate(-1.5deg); background:var(--t6); }
+.domanda .btn{ align-self:flex-start; }
+.attenzione{ padding:12px 16px; border-radius:14px; background:var(--paper); font-size:14.5px; font-weight:500; }
+.risposta{ font-family:var(--serif); font-style:italic; font-size:clamp(22px,2.4vw,28px); line-height:1.25; min-height:1.3em; }
+.proposte{ display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,15rem),1fr)); gap:12px; }
+.proposta{ display:flex; flex-direction:column; gap:6px; padding:18px; border-radius:20px; background:var(--paper); }
+.proposta .cat{ font-size:10.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-2); }
+.proposta h3{ font-family:var(--serif); font-weight:500; font-size:26px; line-height:1.05; }
+.proposta p{ font-size:14px; color:var(--ink-2); }
+.proposta .perche{ color:var(--ink); font-size:15px; }
+.proposta .add{ align-self:flex-start; margin-top:auto; }
+.proposta .chip-g{ align-self:flex-start; margin-top:auto; padding:6px 12px; border-radius:999px; background:var(--t1); font-size:12px; font-weight:500; }
+.avviso-ai{ font-size:13px; color:var(--ink-2); }
+
+/* ================= CURSORE ================= */
+/* Una stellina; sui link un cono (estate) o una fetta di panettone (inverno). Solo con il mouse. */
+@media (hover:hover) and (pointer:fine){
+  body{ cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5Q13.4 10.6 22.5 12Q13.4 13.4 12 22.5Q10.6 13.4 1.5 12Q10.6 10.6 12 1.5Z' fill='%23e2c27a' stroke='%231c1814' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 11 11, auto; }
+  :root[data-season="estate"] a, :root[data-season="estate"] button, :root[data-season="estate"] .tag{ cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='34' viewBox='0 0 30 34'%3E%3Cpath d='M8 15l7 17 7-17z' fill='%23e3a95c' stroke='%231c1814' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='15' cy='10' r='8' fill='%23f8c0cd' stroke='%231c1814' stroke-width='2'/%3E%3C/svg%3E") 15 3, pointer; }
+  :root[data-season="inverno"] a, :root[data-season="inverno"] button, :root[data-season="inverno"] .tag{ cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='30' viewBox='0 0 32 30'%3E%3Cpath d='M4 26L16 3l12 23z' fill='%23f2d79a' stroke='%232b1d16' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M16 3l12 23' stroke='%23a8622f' stroke-width='4'/%3E%3Ccircle cx='14' cy='18' r='1.6' fill='%232b1d16'/%3E%3Ccircle cx='18' cy='22' r='1.6' fill='%232b1d16'/%3E%3Ccircle cx='11' cy='23' r='1.6' fill='%232b1d16'/%3E%3C/svg%3E") 16 3, pointer; }
+  textarea{ cursor:text; }
+}
+
 /* ================= MOTION ================= */
 .motion .rv{ opacity:.15; transform:translateY(44px); transition:opacity .9s var(--ease), transform 1s var(--ease), background-color .35s var(--ease); transition-delay:var(--d,0ms), var(--d,0ms), 0ms; }
 .motion .rv-card{ transform:translateY(80px) rotate(-2.5deg) scale(.95); }
@@ -703,6 +767,7 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
     <nav class="nav" aria-label="Principale">
       <a href="#gusti" data-only="estate">Gusti</a>
       <a href="#negozio">Negozio</a>
+      <a href="#consiglio">Consigli</a>
       <a href="#laboratorio">Laboratorio</a>
       <a href="#storia">Storia</a>
       <a href="#visita">Visita</a>
@@ -740,6 +805,14 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
 </div>
 
 <main>
+<div class="stato fuori" id="stato">
+  <span class="gancio" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="4" r="2.6" fill="currentColor" stroke="none"/><path d="M12 6v8a4 4 0 1 1-4-4"/></svg></span>
+  <div class="pendolo" id="pendolo">
+    <span class="cordino" aria-hidden="true"></span>
+    <a class="tag" id="tag" href="#visita" aria-label="Orari"><b id="stato-titolo">Orari</b><small id="stato-dettaglio">Stella Polare</small></a>
+  </div>
+</div>
+
 <!-- ================= HERO ESTATE ================= -->
 <section class="hero hero--estate no-scrub" id="hero-estate" data-only="estate" aria-label="Stella Polare d'estate: gelato artigianale">
   <div class="hero-sticky">
@@ -912,6 +985,34 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
   </div>
 </section>
 
+<!-- ================= NON SAI COSA SCEGLIERE? ================= -->
+<section class="section consiglio" id="consiglio">
+  <div class="wrap consiglio-grid">
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <p class="eyebrow rv">Non sai cosa scegliere?</p>
+      <h2 class="h2 rv" data-only="estate">Che gusto <em>prendo?</em></h2>
+      <h2 class="h2 rv" data-only="inverno">Cosa porto <em>a Natale?</em></h2>
+      <p class="lead rv" data-only="estate">Scrivi cosa ti piace o per chi è: ti propongo i gusti giusti e cosa portare a casa.</p>
+      <p class="lead rv" data-only="inverno">Scrivi per chi è il regalo o cosa piace in famiglia: ti propongo cosa portare dalla bottega.</p>
+    </div>
+    <div>
+      <div id="consiglio-box">
+        <form class="domanda" id="consiglio-modulo">
+          <label for="richiesta">La tua richiesta</label>
+          <textarea id="richiesta" maxlength="600"></textarea>
+          <div class="spunti" id="spunti"></div>
+          <button class="btn btn-dark" id="consiglia" type="submit">Consigliami</button>
+        </form>
+        <p class="attenzione" id="attenzione" hidden>Per allergie e intolleranze non affidarti a un consiglio automatico: chiedi sempre al banco o allo 0432 661199.</p>
+        <p class="risposta" id="risposta" aria-live="polite"></p>
+        <ul class="proposte" id="proposte"></ul>
+        <p class="avviso-ai">Le proposte sono scritte dall'intelligenza artificiale e possono sbagliare. Per allergie e intolleranze chiedi sempre in gelateria.</p>
+      </div>
+      <p class="lead" id="consiglio-assente" hidden>Qui il consigliere non è disponibile: sfoglia i gusti e il negozio qui sopra.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= LABORATORIO ================= -->
 <section class="section lab" id="laboratorio">
   <div class="wrap lab-grid">
@@ -980,11 +1081,11 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
       </div>
       <div class="rv rv-card card hours">
         <h3>Orari</h3>
-        <dl>
+        <dl id="orari">
           <dt>Lunedì</dt><dd class="closed">chiuso</dd>
           <dt>Martedì – Domenica</dt><dd>orari di stagione</dd>
         </dl>
-        <p>Gli orari cambiano durante l'anno. Per sicurezza, telefonate prima di passare.</p>
+        <p>Orari indicativi, da confermare con la gelateria: cambiano durante l'anno. Per sicurezza, telefonate prima di passare.</p>
         <p class="polaris"><svg class="star" aria-hidden="true"><use href="#star"/></svg>Da Pagnacco la Stella Polare si trova a 46° sopra l'orizzonte nord.</p>
       </div>
     </div>
@@ -1073,6 +1174,7 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
 
   function applySeason(s){
     root.setAttribute('data-season', s);
+    if (seasonHooks) seasonHooks.forEach(function(f){ f(); });
     paintSeasonUI();
     renderShop();
     activateHero();
@@ -1535,8 +1637,183 @@ body.cart-open .cart{ transform:none; visibility:visible; transition:transform .
   var mqDesk = window.matchMedia('(min-width: 980px)');
   if (mqDesk.addEventListener) mqDesk.addEventListener('change', function(e){ if (e.matches) closeMenu(); });
 
+  /* ================= ORARI E CARTELLO =================
+     Ora di Pagnacco. DA CONFERMARE con Marta: per ora estate mar–dom 13:00–23:00,
+     inverno mar–dom 9:00–12:30 e 15:00–19:30. Lunedì chiuso (certo). */
+  var seasonHooks = [];
+  var ORARI = {
+    estate:  { 1: [], 2: [[780,1380]], 3: [[780,1380]], 4: [[780,1380]], 5: [[780,1380]], 6: [[780,1380]], 0: [[780,1380]] },
+    inverno: { 1: [], 2: [[540,750],[900,1170]], 3: [[540,750],[900,1170]], 4: [[540,750],[900,1170]], 5: [[540,750],[900,1170]], 6: [[540,750],[900,1170]], 0: [[540,750],[900,1170]] }
+  };
+  var GIORNI = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+  var fmtOra = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  function adesso(){ var g = {}; fmtOra.formatToParts(new Date()).forEach(function(p){ g[p.type] = p.value; }); return { giorno: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(g.weekday), minuti: parseInt(g.hour,10) % 24 * 60 + parseInt(g.minute,10) }; }
+  function hhmm(m){ m = m % 1440; return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'); }
+  function statoOra(){
+    var A = ORARI[season()], a = adesso(), oggi = A[a.giorno], i, d, j;
+    for (i = 0; i < oggi.length; i++) if (a.minuti >= oggi[i][0] && a.minuti < oggi[i][1]) return { aperto: true, t: 'Aperto', d: 'chiude alle ' + hhmm(oggi[i][1]) };
+    for (d = 0; d < 8; d++){ var gg = (a.giorno + d) % 7, f = A[gg];
+      for (j = 0; j < f.length; j++) if (d > 0 || f[j][0] > a.minuti) return { aperto: false, t: 'Chiuso', d: 'apre ' + (d === 0 ? 'oggi' : d === 1 ? 'domani' : GIORNI[gg]) + ' alle ' + hhmm(f[j][0]) }; }
+    return { aperto: false, t: 'Chiuso', d: '' };
+  }
+  var statoEl = $('#stato');
+  function aggiornaStato(){
+    var s = statoOra();
+    statoEl.classList.toggle('aperto', s.aperto);
+    $('#stato-titolo').textContent = s.t; $('#stato-dettaglio').textContent = s.d;
+    $('#tag').setAttribute('aria-label', s.t + ', ' + s.d + '. Vai agli orari');
+  }
+  function disegnaOrari(){
+    var A = ORARI[season()], dl = $('#orari'), oggi = adesso().giorno, gruppi = [];
+    dl.textContent = '';
+    function testo(g){ return A[g].length ? A[g].map(function(f){ return hhmm(f[0]) + '–' + hhmm(f[1]); }).join(' · ') : 'chiuso'; }
+    [1,2,3,4,5,6,0].forEach(function(g){ var t = testo(g), u = gruppi[gruppi.length-1]; if (u && u.t === t) u.g.push(g); else gruppi.push({ t: t, g: [g] }); });
+    gruppi.forEach(function(gr){
+      var cap = function(g){ return GIORNI[g].charAt(0).toUpperCase() + GIORNI[g].slice(1); };
+      var dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = gr.g.length === 1 ? cap(gr.g[0]) : cap(gr.g[0]) + ' – ' + cap(gr.g[gr.g.length-1]);
+      dd.textContent = gr.t; if (gr.t === 'chiuso') dd.className = 'closed';
+      if (gr.g.indexOf(oggi) >= 0) dt.style.color = 'var(--deep-accent)';
+      dl.append(dt, dd);
+    });
+  }
+  seasonHooks.push(aggiornaStato, disegnaOrari);
+  setInterval(aggiornaStato, 30000);
+
+  function mostraStato(){
+    var h = document.getElementById(SEASONS[season()].hero);
+    statoEl.classList.toggle('fuori', h.getBoundingClientRect().bottom > window.innerHeight * 0.5);
+  }
+  window.addEventListener('scroll', mostraStato, { passive: true });
+  var spingiTag = function(){};
+  (function(){
+    if (reduce) return;
+    var pend = $('#pendolo'), ang = 0, vel = 0, y0 = window.scrollY || 0, t0 = 0;
+    function oscilla(t){
+      var dt = t0 ? Math.min(0.05, (t - t0) / 1000) : 0.016; t0 = t;
+      var y = window.scrollY || 0, dy = y - y0; y0 = y;
+      vel += Math.max(-60, Math.min(60, dy * 1.1));
+      vel += (-ang * 38 - vel * 3.2) * dt;
+      ang = Math.max(-30, Math.min(30, ang + vel * dt));
+      if (Math.abs(ang) < 0.02 && Math.abs(vel) < 0.05){ ang = 0; vel = 0; }
+      pend.style.transform = 'rotate(' + ang.toFixed(2) + 'deg)';
+      requestAnimationFrame(oscilla);
+    }
+    spingiTag = function(f){ vel += f; };
+    requestAnimationFrame(oscilla);
+  })();
+  /* Sorpresa: cinque tocchi sul cartello e si gira a salutare */
+  var tocchi = 0, timerTocchi;
+  $('#tag').addEventListener('click', function(e){
+    tocchi++; clearTimeout(timerTocchi); timerTocchi = setTimeout(function(){ tocchi = 0; }, 900);
+    spingiTag(240);
+    if (tocchi > 1) e.preventDefault();
+    if (tocchi >= 5){
+      tocchi = 0;
+      var tg = $('#tag'), b = $('#stato-titolo'), sm = $('#stato-dettaglio'), vb = b.textContent, vs = sm.textContent;
+      tg.classList.remove('gira'); void tg.offsetWidth; tg.classList.add('gira');
+      setTimeout(function(){ b.textContent = season() === 'estate' ? 'Ciao!' : 'Auguri!'; sm.textContent = season() === 'estate' ? 'un cono?' : 'buone feste'; }, 400);
+      setTimeout(function(){ b.textContent = vb; sm.textContent = vs; }, 2600);
+    }
+  });
+
+  /* ================= NON SAI COSA SCEGLIERE? =================
+     Propone solo voci vere: i gusti del banco (estate) e i prodotti del negozio della stagione. */
+  var GUSTI = [
+    { id:'g-pistacchio', name:'Pistacchio di Bronte', desc:'Verde pieno, gusto tostato e deciso.', tipo:'Gusto · crema', tile:'t1' },
+    { id:'g-frutti-di-bosco', name:'Frutti di bosco', desc:'Lamponi, more e mirtilli. Fresco e acidulo.', tipo:'Gusto · frutta', tile:'t2' },
+    { id:'g-nocciola', name:'Nocciola IGP Piemonte', desc:'La nocciola tonda gentile, tostata.', tipo:'Gusto · crema', tile:'t3' },
+    { id:'g-cioccolato', name:'Cioccolato fondente', desc:'Scuro, intenso, poco dolce.', tipo:'Gusto · crema', tile:'t4' },
+    { id:'g-fiordilatte', name:'Fior di latte con amarena', desc:'Latte e panna, con amarene a filo.', tipo:'Gusto · crema', tile:'t6' },
+    { id:'g-granita', name:'Granita sambuco, menta e limone', desc:'Fiori di sambuco, menta fresca, limone.', tipo:'Granita', tile:'t5' }
+  ];
+  var SPUNTI = {
+    estate: ['Due bambini e un nonno goloso', 'Qualcosa di fresco e leggero', 'Mi piace il cioccolato', 'Dolce per una cena da amici'],
+    inverno: ['Un regalo per la maestra', 'Pranzo di Natale in dodici', 'Per chi ama il tè', 'Un pensiero piccolo']
+  };
+  var PH = { estate: 'Siamo in tre, a uno piace la frutta e agli altri le creme', inverno: 'Cerco un regalo per i suoceri, amano le cose tradizionali' };
+  function catalogo(){
+    var list = season() === 'estate' ? GUSTI.slice() : [];
+    PRODUCTS.forEach(function(p){ if (p.s === season() || p.s === 'tutto') list.push(p); });
+    return list;
+  }
+  function riempiSpunti(){
+    var sp = $('#spunti'); sp.textContent = '';
+    SPUNTI[season()].forEach(function(t){ var b = document.createElement('button'); b.type = 'button'; b.className = 'spunto'; b.textContent = t; sp.appendChild(b); });
+    $('#richiesta').placeholder = PH[season()];
+    $('#risposta').textContent = ''; $('#proposte').textContent = '';
+  }
+  seasonHooks.push(riempiSpunti);
+  var consBox = $('#consiglio-box'), consAssente = $('#consiglio-assente'), campo = $('#richiesta'), invia = $('#consiglia'), risposta = $('#risposta'), proposte = $('#proposte'), attenzione = $('#attenzione');
+  var ALLERGIE = /allerg|intolleran|celiac|glutin|lattos|anafilass|frutta a guscio/i;
+  var sample = null, ctl = null;
+  function domanda(r){
+    var est = season() === 'estate';
+    var elenco = catalogo().map(function(v){ return v.id + ' | ' + v.name + ' | ' + (v.tipo || CATS[v.cat]) + ' | ' + (v.price != null ? euro.format(v.price) + ' · ' + v.size : 'al banco') + (v.pickup ? ' | solo ritiro' : '') + ' | ' + v.desc; }).join('\n');
+    return [
+      est ? "Sei il consigliere della Gelateria Artigianale Stella Polare di Pagnacco (Friuli). Aiuti a scegliere i gusti al banco e cosa portare a casa. Rispondi in italiano, cordiale e breve."
+          : "Sei il consigliere della bottega di Natale della Gelateria Stella Polare di Pagnacco (Friuli). Aiuti a scegliere cosa comprare o regalare per le feste. Rispondi in italiano, cordiale e breve.",
+      'Puoi proporre SOLO voci di questo elenco (id | nome | tipo | prezzo | note | descrizione):',
+      elenco,
+      'Regole:',
+      "- Proponi da 1 a 4 voci adatte, usando esattamente gli id dell'elenco.",
+      '- Non inventare gusti, prezzi, pezzature o ingredienti.',
+      '- Per vegano o senza latte: di\' che ogni giorno al banco ci sono gusti vegani e che li indicano loro.',
+      '- Se si parla di allergie, intolleranze, celiachia, glutine, lattosio o frutta a guscio: nessuna garanzia, chiedere al banco o allo ' + '0432 661199' + '.',
+      '- Se la richiesta non riguarda la gelateria, rispondi che puoi aiutare solo a scegliere tra queste voci, senza proposte.',
+      'Rispondi solo con JSON: {"messaggio": "una o due frasi", "proposte": [{"id": "id dell\'elenco", "perche": "al massimo 12 parole"}]}',
+      'Richiesta del cliente:',
+      '«' + r.slice(0, 600) + '»'
+    ].join('\n');
+  }
+  function mostraConsigli(dati){
+    var perId = {}; catalogo().forEach(function(v){ perId[v.id] = v; });
+    risposta.textContent = dati && typeof dati.messaggio === 'string' ? dati.messaggio : '';
+    proposte.textContent = '';
+    var visti = {};
+    (dati && Array.isArray(dati.proposte) ? dati.proposte : []).forEach(function(p){
+      var id = p && String(p.id || ''), v = perId[id];
+      if (!v || visti[id] || proposte.children.length >= 4) return;
+      visti[id] = true;
+      var li = document.createElement('li'); li.className = 'proposta';
+      var cat = document.createElement('span'); cat.className = 'cat'; cat.textContent = (v.tipo || CATS[v.cat]) + (v.price != null ? ' · ' + euro.format(v.price) : '');
+      var h = document.createElement('h3'); h.textContent = v.name;
+      var d = document.createElement('p'); d.textContent = v.desc;
+      li.append(cat, h, d);
+      if (p.perche){ var w = document.createElement('p'); w.className = 'perche'; w.textContent = String(p.perche); li.appendChild(w); }
+      if (v.price != null){
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'add'; b.setAttribute('data-add', v.id);
+        b.setAttribute('aria-label', 'Aggiungi ' + v.name + ' al carrello');
+        b.innerHTML = '<svg aria-hidden="true"><use href="#plus"/></svg><span class="t">Aggiungi</span>';
+        li.appendChild(b);
+      } else { var c = document.createElement('span'); c.className = 'chip-g'; c.textContent = 'Al banco'; li.appendChild(c); }
+      proposte.appendChild(li);
+    });
+    if (!risposta.textContent && !proposte.children.length) risposta.textContent = 'Non ho trovato niente di adatto: prova a dirlo con altre parole.';
+  }
+  function nonDisponibile(){ consBox.hidden = true; consAssente.hidden = false; }
+  function chiedi(r){
+    r = (r || '').trim(); if (!r){ campo.focus(); return; }
+    if (!sample){ risposta.textContent = 'Un attimo…'; pronto.then(function(fn){ if (fn) chiedi(r); else nonDisponibile(); }); return; }
+    if (ctl) ctl.abort(); ctl = new AbortController();
+    invia.disabled = true; risposta.textContent = 'Ci penso…'; proposte.textContent = '';
+    attenzione.hidden = !ALLERGIE.test(r);
+    sample.json(domanda(r), { modelTier: 'quick', signal: ctl.signal }).then(mostraConsigli, function(e){
+      var c = e && e.code; if (c === 'cancelled') return;
+      if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed','session_expired'].indexOf(c) >= 0){ nonDisponibile(); return; }
+      risposta.textContent = c === 'rate_limited' ? "Troppe domande in poco tempo: riprova tra un po'." : 'Non sono riuscito a rispondere. Riprova con parole diverse.';
+    }).then(function(){ invia.disabled = false; });
+  }
+  $('#consiglio-modulo').addEventListener('submit', function(e){ e.preventDefault(); chiedi(campo.value); });
+  $('#spunti').addEventListener('click', function(e){ var s = e.target.closest('.spunto'); if (s){ campo.value = s.textContent; chiedi(campo.value); } });
+  var pronto = (window.claude && typeof window.claude.use === 'function')
+    ? window.claude.use('sample').then(function(fn){ return fn || null; }, function(){ return null; })
+    : Promise.resolve(null);
+  pronto.then(function(fn){ sample = fn; if (!fn) nonDisponibile(); });
+
   /* ================= AVVIO ================= */
   applySeason(season());
+  mostraStato();
   observe($$('.rv').filter(function(el){ return !el.closest('#products'); }));
   paintCount();
   update();
