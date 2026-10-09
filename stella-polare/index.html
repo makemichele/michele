@@ -3,8 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
 <title>Stella Polare Pagnacco</title>
 <meta name="description" content="Stella Polare a Pagnacco (UD), via Pazzan 9. D'estate gelato artigianale, d'inverno panettoni, gubane, confetture, tè e spezie. Ritiro in negozio o spedizione in Italia.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23f3d56a%27/%3E%3Cpath d=%27M16 5l3.2 7.2 7.8.7-5.9 5.2 1.8 7.7L16 21.8l-6.9 4 1.8-7.7L5 12.9l7.8-.7z%27 fill=%27%231c1814%27/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gelateria Stella Polare · Pagnacco">
+<meta property="og:description" content="Gelato artigianale d'estate, panettoni e gubane d'inverno. Via Pazzan 9, Pagnacco (UD).">
+<meta property="og:locale" content="it_IT">
 <meta name="theme-color" content="#f3d56a">
 <script>
 /* Stagione prima del primo disegno: estate tra l'equinozio di marzo e quello di settembre. */
@@ -236,8 +243,7 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
   .menu{ display:none !important; }
   .header-in{ height:76px; gap:28px; }
   .brand{ font-size:34px; }
-  .tools .season-btn .lbl{ display:inline; }
-  .tools .season-btn{ padding:0 16px; }
+  .tools .season-btn{ width:40px; padding:0; }
 }
 
 /* ================= HERO (comune) ================= */
@@ -272,7 +278,8 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
 
 .reel video, .reel canvas, .film video, .film canvas{ position:absolute; inset:0; width:100%; height:100%; }
 .reel canvas, .film canvas{ opacity:0; }
-.scrub .reel canvas, .scrub .film canvas{ opacity:1; }
+.scrub .reel canvas, .scrub .film canvas{ opacity:1; transition:opacity .4s ease; }
+.hero-sticky{ contain:layout paint; }
 .scrub .reel video, .scrub .film video{ visibility:hidden; }
 
 /* ---------- estate: gelato scontornato sul giallo ---------- */
@@ -291,12 +298,13 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
 /* ---------- inverno: il panettone si taglia ---------- */
 .hero--inverno .glow{
   position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(60% 55% at 50% 58%, #4a382c 0%, rgba(74,56,44,0) 70%);
+  background:none; /* sfondo piatto */
 }
 .stage-w{ position:relative; min-height:0; container-type:size; }
 .film{
   position:absolute; left:50%; top:56%; transform:translate(-50%,-50%);
-  width:min(128vw, 150cqh); aspect-ratio:736/400;
+  /* il video si rimpicciolisce quanto serve per lasciare sopra lo spazio al titolo */
+  width:max(240px, min(128vw, 150cqh, calc((56cqh - var(--tt, 8.5rem)) * 3.68))); aspect-ratio:736/400;
   container-type:inline-size;
 }
 .film video, .film canvas{
@@ -311,11 +319,12 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
   pointer-events:none;
 }
 .film-title .script{
-  font-family:var(--script); font-size:clamp(46px, 14vw, 60px); line-height:1.1; padding:0 .25em;
-  background:linear-gradient(100deg, #b8893d 0%, #f3dc9e 45%, #c9a152 60%, #a5782f 100%);
+  font-family:var(--script); font-size:clamp(46px, 14vw, 60px); line-height:1.45; padding:.05em .6em; margin:-.2em -.35em; white-space:nowrap;
+  /* i ghirigori del corsivo escono dal box delle lettere: più spazio perché non vengano tagliati */
+  background:linear-gradient(100deg, #d9ab5a 0%, #fbe9b8 45%, #e2bd6e 60%, #c99a48 100%);
   -webkit-background-clip:text; background-clip:text; color:#e9c27d; -webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 3px 14px rgba(20,12,8,.55));
-  clip-path:inset(-30% calc((1 - var(--t,1)) * 100%) -30% -10%);
+  filter:drop-shadow(0 0 1px rgba(20,12,8,.9)) drop-shadow(0 2px 6px rgba(20,12,8,.85)) drop-shadow(0 6px 26px rgba(20,12,8,.8));
+  clip-path:inset(-50% calc((1 - var(--t,1)) * 110% - 10%) -50% -10%);
 }
 .film-title .sub{
   font-size:11px; letter-spacing:.34em; text-transform:uppercase; font-weight:500; color:var(--hero-fg);
@@ -356,9 +365,10 @@ body.menu-open .header{ background:var(--hero-bg); color:var(--hero-fg); box-sha
   .hero--inverno .cta-row .btn-line{ color:var(--hero-fg); border-color:var(--hero-fg); }
   .hero--inverno .cta-row .btn-line:hover{ background:var(--hero-fg); color:var(--hero-bg); }
   .stage-w{ margin-top:2vh; }
+  .hero--inverno .stage-w{ margin-top:7vh; }
   .film{ top:50%; width:min(100cqw, 176cqh); }
   /* desktop: sul muro in alto, sopra le metà del panettone */
-  .film-title{ bottom:auto; top:2%; padding-bottom:0; }
+  .film-title{ bottom:auto; top:0; padding-bottom:0; transform:translateY(-32%); }
   .film-title .script{ font-size:8.2cqw; }
   .film-title .sub{ display:none; }
   .hero--inverno .chapters{ display:flex; gap:6px; }
@@ -748,9 +758,15 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
   .reel, .stage-w{ height:70svh; }
   *,*::before,*::after{ animation:none !important; transition:none !important; }
 }
+.mt-18{margin-top:18px}.h2-narrow{max-width:11em}[data-mt="28"]{margin-top:28px}
+
+/* schermi bassi (finestre ridotte, telefoni in orizzontale): titolo più compatto */
+@media (max-width:899px) and (max-height:760px){
+  .hero--inverno{ --tt:5.4rem; }
+  .film-title .script{ font-size:clamp(38px, 8vh, 52px); line-height:1.3; }
+  .film-title .sub{ display:none; }
+}
 </style>
-</head>
-<body>
 <a class="skip" href="#intro">Vai al contenuto</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -825,9 +841,6 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
           <a class="btn btn-dark" href="#gusti">Scopri i gusti</a>
           <a class="btn btn-line" href="#negozio">Negozio</a>
         </div>
-        <button class="season-btn season-btn--wide" type="button" data-season-toggle>
-          <svg aria-hidden="true"><use href="#star"/></svg><span class="lbl">Sta arrivando Natale</span>
-        </button>
       </div>
 
       <div class="reel">
@@ -868,9 +881,6 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
           <a class="btn btn-dark" href="#negozio">Vai alla bottega</a>
           <a class="btn btn-line" href="tel:+390432661199">0432 661199</a>
         </div>
-        <button class="season-btn season-btn--wide" type="button" data-season-toggle>
-          <svg aria-hidden="true"><use href="#sun"/></svg><span class="lbl">Sta arrivando l'estate</span>
-        </button>
       </div>
 
       <div class="stage-w">
@@ -945,7 +955,7 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
     <div class="sec-head">
       <div>
         <p class="eyebrow rv">I gusti</p>
-        <h2 class="h2 rv" style="margin-top:18px">Sei classici <em>nel banco</em></h2>
+        <h2 class="h2 rv mt-18">Sei classici <em>nel banco</em></h2>
       </div>
       <p class="lead muted rv">Accanto a questi trovate i gusti di stagione. Chiedete al banco quelli del giorno.</p>
     </div>
@@ -967,12 +977,12 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
     <div class="sec-head">
       <div data-only="estate">
         <p class="eyebrow rv">Negozio</p>
-        <h2 class="h2 rv" style="margin-top:18px">Da portare <em>a casa</em></h2>
+        <h2 class="h2 rv mt-18">Da portare <em>a casa</em></h2>
       </div>
       <p class="lead muted rv" data-only="estate">Vaschette, torte gelato e ghiaccioli si ritirano in gelateria. Confetture, creme e infusi si possono anche spedire.</p>
       <div data-only="inverno">
         <p class="eyebrow rv">Bottega</p>
-        <h2 class="h2 rv" style="margin-top:18px">La bottega <em>di Natale</em></h2>
+        <h2 class="h2 rv mt-18">La bottega <em>di Natale</em></h2>
       </div>
       <p class="lead muted rv" data-only="inverno">Panettoni, gubane e piccoli regali fatti in laboratorio. Ritiro a Pagnacco o spedizione in tutta Italia.</p>
     </div>
@@ -1045,8 +1055,8 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
 <section class="section storia" id="storia">
   <div class="wrap">
     <p class="eyebrow rv">La storia</p>
-    <h2 class="h2 rv" style="margin-top:18px;max-width:11em">Vent'anni vicino alla <em>rotonda</em></h2>
-    <p class="lead rv" style="margin-top:28px">Stella Polare apre a maggio 2005 in via Pazzan 9, vicino alla rotonda di Pagnacco. Da allora il banco cambia con le stagioni e il laboratorio è rimasto lo stesso.</p>
+    <h2 class="h2 rv mt-18 h2-narrow">Vent'anni vicino alla <em>rotonda</em></h2>
+    <p class="lead rv" data-mt="28">Stella Polare apre a maggio 2005 in via Pazzan 9, vicino alla rotonda di Pagnacco. Da allora il banco cambia con le stagioni e il laboratorio è rimasto lo stesso.</p>
     <div class="facts">
       <div class="rv rv-card fact"><b data-count="2005" data-start="1990">2005</b><span>Apertura a maggio, in via Pazzan 9 a Pagnacco.</span></div>
       <div class="rv rv-card fact"><b data-count="20">20</b><span>Anni di lavoro fatto a mano, ogni giorno.</span></div>
@@ -1066,7 +1076,7 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
     <div class="sec-head">
       <div>
         <p class="eyebrow rv">Visita</p>
-        <h2 class="h2 rv" style="margin-top:18px">Vi aspettiamo <em>al banco</em></h2>
+        <h2 class="h2 rv mt-18">Vi aspettiamo <em>al banco</em></h2>
       </div>
     </div>
     <div class="visit-grid">
@@ -1098,7 +1108,7 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
     <div class="footer-top">
       <p class="brand-lg">Stella Polare</p>
       <div class="footer-cols">
-        <div><strong>Dove</strong>Via Pazzan 9<br>33010 Pagnacco (UD)</div>
+        <div><strong>Dove</strong><a href="https://www.google.com/maps/search/?api=1&amp;query=Stella+Polare+Via+Pazzan+9+33010+Pagnacco+UD" target="_blank" rel="noopener">Via Pazzan 9<br>33010 Pagnacco (UD)</a></div>
         <div><strong>Telefono</strong><a href="tel:+390432661199">0432 661199</a></div>
         <div><strong>Orari</strong>Lunedì chiuso<br>Martedì – domenica, orari di stagione</div>
       </div>
@@ -1226,8 +1236,18 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
     /* i fotogrammi stanno in S tavole intrecciate: la tavola k contiene k, k+S, k+2S...
        così ogni tavola copre tutto il video e lo scroll funziona dalla prima che arriva */
     var N = o.n, FIRST = o.first, S = o.sheets, COLS = o.cols, FW = o.fw, FH = o.fh;
-    var sheets = new Array(S), want = FIRST, drawn = -1, started = false, loading = false;
-    function has(i){ return !!sheets[i % S]; }
+    var sheets = new Array(S), target = FIRST, cur = FIRST, drawnKey = '', started = false, loading = false, raf = 0;
+    var frames = new Array(N), useBitmaps = typeof createImageBitmap === 'function', RW = FW, RH = FH;
+    function has(i){ return useBitmaps ? !!frames[i] : !!sheets[i % S]; }
+    /* dimensione di disegno = quella reale a schermo (max 2x), con un tetto di memoria */
+    function sizeCanvas(){
+      var r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var sc = r.width ? Math.min(r.width / FW, r.height / FH) * dpr : 0.75;
+      var cap = Math.sqrt(260e6 / (N * 4 * FW * FH));
+      sc = Math.min(1, sc, cap);
+      RW = Math.max(2, Math.round(FW * sc)); RH = Math.max(2, Math.round(FH * sc));
+      canvas.width = RW; canvas.height = RH;
+    }
 
     function nearest(i){
       for (var d = 0; d < N; d++){
@@ -1236,28 +1256,82 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
       }
       return -1;
     }
-    function draw(){
-      var k = nearest(want);
-      if (k < 0 || k === drawn) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function blit(k, alpha){
+      ctx.globalAlpha = alpha;
+      if (useBitmaps){ ctx.drawImage(frames[k], 0, 0, RW, RH); return; }
       var slot = Math.floor(k / S);
       ctx.drawImage(sheets[k % S], (slot % COLS) * FW, Math.floor(slot / COLS) * FH, FW, FH, 0, 0, canvas.width, canvas.height);
-      drawn = k;
+    }
+    /* disegna la posizione frazionaria: dissolvenza tra due fotogrammi vicini */
+    function draw(){
+      var a = Math.floor(cur), f = cur - a, b = Math.min(N - 1, a + 1);
+      var ka = has(a) ? a : nearest(a), kb = has(b) ? b : -1;
+      if (ka < 0) return;
+      if (kb < 0 || kb === ka || ka !== a) f = 0;
+      f = Math.round(f * 16) / 16;
+      var key = ka + ':' + f;
+      if (key === drawnKey) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+      if (f === 0) blit(ka, 1);
+      else {
+        blit(ka, 1 - f);
+        ctx.globalCompositeOperation = 'lighter';
+        blit(kb, f);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      ctx.globalAlpha = 1;
+      drawnKey = key;
       if (!started){ started = true; hero.classList.remove('no-scrub'); hero.classList.add('scrub'); video.pause(); }
     }
+    /* inerzia: il fotogramma insegue lo scroll con una molla morbida */
+    function loop(){
+      raf = 0;
+      var d = target - cur;
+      cur = Math.abs(d) < 0.02 ? target : cur + d * 0.16;
+      if (o.titleFrom) hero.style.setProperty('--t', clamp((cur - o.titleFrom) / (N - 1 - o.titleFrom)).toFixed(3));
+      draw();
+      if (cur !== target) raf = requestAnimationFrame(loop);
+    }
+    function kick(){ if (!raf) raf = requestAnimationFrame(loop); }
     function fallback(){ video.loop = true; var pr = video.play(); if (pr && pr.catch) pr.catch(function(){}); }
     function loadFrames(){
       if (loading || !ctx) return;
       loading = true;
+      if (useBitmaps) sizeCanvas();
       var saveData = navigator.connection && navigator.connection.saveData;
       var start = FIRST % S, order = [];
       for (var j = 0; j < S; j++) order.push((start + j * 5) % S);   /* 5 e 13 coprimi: tavole sparse nel tempo */
       if (saveData) order = order.slice(0, Math.ceil(S / 2));
+      function ready(k, im){
+        if (useBitmaps){
+          /* ogni fotogramma diventa un'immagine piccola già decodificata:
+             niente più tavole enormi da ricaricare sulla scheda video a ogni scatto */
+          var jobs = [];
+          for (var slot = 0; k + slot * S < N; slot++){
+            (function(fi, sl){
+              jobs.push(createImageBitmap(im, (sl % COLS) * FW, Math.floor(sl / COLS) * FH, FW, FH,
+                { resizeWidth: RW, resizeHeight: RH, resizeQuality: 'high' })
+                .then(function(bm){ frames[fi] = bm; }));
+            })(k + slot * S, slot);
+          }
+          Promise.all(jobs).then(function(){ drawnKey = ''; kick(); next(); },
+            function(){ useBitmaps = false; sizeCanvas(); canvas.width = FW; canvas.height = FH; RW = FW; RH = FH; sheets[k] = im; drawnKey = ''; kick(); next(); });
+          return;
+        }
+        sheets[k] = im;
+        /* prima pittura fuori schermo: niente scatto alla prima comparsa della tavola */
+        try { ctx.globalAlpha = 0; ctx.drawImage(im, 0, 0, 1, 1, 0, 0, 1, 1); ctx.globalAlpha = 1; } catch(e){}
+        drawnKey = ''; kick(); next();
+      }
       function next(){
         if (!order.length) return;
         var k = order.shift(), im = new Image();
         im.decoding = 'async';
-        im.onload = function(){ sheets[k] = im; draw(); next(); };
+        im.onload = function(){
+          if (im.decode) im.decode().then(function(){ ready(k, im); }, function(){ ready(k, im); });
+          else ready(k, im);
+        };
         im.onerror = function(){ if (k === start){ order = []; fallback(); } else next(); };
         im.src = o.src(k);
       }
@@ -1268,16 +1342,16 @@ body.menu-open .stato, body.cart-open .stato{ opacity:0; }
       if (r.height === 0 || r.bottom < 0 || r.top > vh) return;
       var p = clamp(-r.top / Math.max(1, hero.offsetHeight - vh));
       var q = clamp(p / 0.9);
-      want = FIRST + Math.round(q * (N - 1 - FIRST));
+      target = FIRST + q * (N - 1 - FIRST);
+      var want = Math.round(target);
       hero.style.setProperty('--p', p.toFixed(4));
-      if (o.titleFrom) hero.style.setProperty('--t', clamp((want - o.titleFrom) / (N - 1 - o.titleFrom)).toFixed(3));
-      if (started) draw();
-      var cur = 0;
-      chapters.forEach(function(li, i){ if (want >= +li.getAttribute('data-from')) cur = i; });
-      chapters.forEach(function(li, i){ li.classList.toggle('on', i === cur); });
-      if (chapters[cur] && nowB){
-        nowB.textContent = chapters[cur].querySelector('b').textContent;
-        nowS.textContent = chapters[cur].querySelector('span').textContent;
+      if (started) kick();
+      var curCh = 0;
+      chapters.forEach(function(li, i){ if (want >= +li.getAttribute('data-from')) curCh = i; });
+      chapters.forEach(function(li, i){ li.classList.toggle('on', i === curCh); });
+      if (chapters[curCh] && nowB){
+        nowB.textContent = chapters[curCh].querySelector('b').textContent;
+        nowS.textContent = chapters[curCh].querySelector('span').textContent;
       }
     }
     return { video: video, load: loadFrames, step: step };
